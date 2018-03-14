@@ -76,6 +76,12 @@ public class MainActivity extends AppCompatActivity {
 
         mBottomNav = findViewById(R.id.navigation);
         mBottomNav.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        Fragment frag = MainFragment.newInstance();
+
+        android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        ft.replace(R.id.container, frag, frag.getTag());
+        ft.commit();
     }
 
 }
