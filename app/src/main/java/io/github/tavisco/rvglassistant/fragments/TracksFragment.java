@@ -20,6 +20,7 @@ import java.util.List;
 
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.rvgl.FindTracks;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -86,16 +87,11 @@ public class TracksFragment extends Fragment {
 //        mRecyclerView.getItemAnimator().setAddDuration(500);
 //        mRecyclerView.getItemAnimator().setRemoveDuration(500);
 
-        List<TrackItem> itens = new ArrayList<>();
+        List<TrackItem> items = FindTracks.getAllTracks();
 
-        for (int i = 0; i < 5; i++) {
-            TrackItem item = new TrackItem();
-            item.withName("Super Market " + i);
-            item.withDiscription("607M");
-            itens.add(item);
+        if (items != null){
+            mItemAdapter.add(items);
         }
-
-        mItemAdapter.add(itens);
     }
 
 }
