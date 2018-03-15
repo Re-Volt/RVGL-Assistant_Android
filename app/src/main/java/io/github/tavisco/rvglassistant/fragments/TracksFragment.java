@@ -80,7 +80,7 @@ public class TracksFragment extends Fragment {
 
         //configure our fastAdapter
         //get our recyclerView and do basic setup
-        mRecyclerView = getView().findViewById(R.id.rv);
+        mRecyclerView = getView().findViewById(R.id.rvTracks);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
 

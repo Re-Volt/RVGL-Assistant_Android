@@ -5,13 +5,14 @@
     tools:context="io.github.tavisco.rvglassistant.fragments.TracksFragment">
 
     <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv"
+        android:id="@+id/rvTracks"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
         android:padding="8dp" />
 
     <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fabTracks"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
