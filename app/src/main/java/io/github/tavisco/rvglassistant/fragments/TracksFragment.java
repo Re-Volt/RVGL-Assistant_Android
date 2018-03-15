@@ -83,9 +83,6 @@ public class TracksFragment extends Fragment {
         mRecyclerView = getView().findViewById(R.id.rv);
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
-//        mRecyclerView.setItemAnimator(new SlideDownAlphaAnimator());
-//        mRecyclerView.getItemAnimator().setAddDuration(500);
-//        mRecyclerView.getItemAnimator().setRemoveDuration(500);
 
         List<TrackItem> items = FindTracks.getAllTracks();
 

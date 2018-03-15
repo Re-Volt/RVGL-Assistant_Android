@@ -18,7 +18,14 @@ import io.github.tavisco.rvglassistant.items.TrackItem;
  */
 
 public class FindTracks {
+
+
     public static List<TrackItem> getAllTracks(){
+
+        List<String> dontShowTracks = new ArrayList<>();
+        dontShowTracks.add("intro");
+        dontShowTracks.add("frontend");
+
         List<TrackItem> list = new ArrayList<>();
 
         String path = Environment.getExternalStorageDirectory().toString()+"/RVGL/levels";
@@ -29,7 +36,18 @@ public class FindTracks {
             return null;
         }
 
+        boolean skip;
         for (File file : files) {
+            skip = false;
+
+            for (String dontShow : dontShowTracks) {
+                if (dontShow.equals(file.getName()))
+                    skip = true;
+            }
+
+            if (skip)
+                continue;
+
             list.add(populateItem(file.getName()));
         }
         return list;
@@ -67,17 +85,17 @@ public class FindTracks {
         Pattern p = Pattern.compile("\\'(.*?)\\'");
         Matcher m = p.matcher(infos.get(4));
         if (m.find()) {
-            System.out.println(m.group(0));
             item.withName(m.group(0).replace("\'", ""));
         }
 
         File imgFile = new File(Environment.getExternalStorageDirectory().toString() + "/RVGL/gfx/" + track + ".bmp");
         if (!imgFile.isFile() || !imgFile.canRead()){
             Log.d(">>>", "Erro imagem " + track);
-            return null;
+            item.withImage(null);
+        } else {
+            item.withImage(imgFile.getAbsolutePath());
         }
 
-        item.withImage(imgFile.getAbsolutePath());
 
         return item;
     }

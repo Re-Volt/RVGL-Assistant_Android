@@ -1,7 +1,10 @@
 package io.github.tavisco.rvglassistant.items;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -26,7 +29,7 @@ private String trackDiscription;
 private String trackImgPath;
 
 public TrackItem withImage(String imagePath){
-        this.trackImgPath=trackImgPath;
+        this.trackImgPath=imagePath;
         return this;
         }
 
@@ -77,6 +80,13 @@ public void bindView(TrackItem.ViewHolder viewHolder,List<Object> payloads){
         viewHolder.imageView.setImageBitmap(null);
 
         //Load image
+        if (trackImgPath != null){
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+            Bitmap bitmap = BitmapFactory.decodeFile(trackImgPath, options);
+            viewHolder.imageView.setImageBitmap(bitmap);
+        }
+
 
         }
 
