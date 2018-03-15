@@ -25,6 +25,7 @@ public class FindTracks {
         List<String> dontShowTracks = new ArrayList<>();
         dontShowTracks.add("intro");
         dontShowTracks.add("frontend");
+        dontShowTracks.add("stunts");
 
         List<TrackItem> list = new ArrayList<>();
 

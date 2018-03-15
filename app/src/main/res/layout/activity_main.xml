@@ -12,8 +12,7 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="#f1f1f1">
+        android:layout_weight="1">
 
     </FrameLayout>
 
@@ -22,6 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        app:menu="@menu/navigation" />
+        app:menu="@menu/navigation"
+        android:background="#212121"/>
 
 </LinearLayout>
