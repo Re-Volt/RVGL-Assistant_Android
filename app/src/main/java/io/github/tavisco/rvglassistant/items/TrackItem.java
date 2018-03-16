@@ -28,7 +28,19 @@ private String trackName;
 private String trackDiscription;
 private String trackImgPath;
 
-public TrackItem withImage(String imagePath){
+    public String getTrackName() {
+        return trackName;
+    }
+
+    public String getTrackDiscription() {
+        return trackDiscription;
+    }
+
+    public String getTrackImgPath() {
+        return trackImgPath;
+    }
+
+    public TrackItem withImage(String imagePath){
         this.trackImgPath=imagePath;
         return this;
         }
@@ -42,6 +54,8 @@ public TrackItem withDiscription(String discription){
         this.trackDiscription=discription;
         return this;
         }
+
+
 
 /**
  * defines the type defining this item. must be unique. preferably an id
