@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
@@ -99,8 +100,8 @@ public class TracksFragment extends Fragment {
             @Override
             public boolean onClick(View v, IAdapter<TrackItem> adapter, @NonNull TrackItem item, int position) {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
+                intent.putExtra("track", (new Gson()).toJson(item));
                 getActivity().startActivity(intent);
-
                 return false;
             }
         });
