@@ -37,13 +37,17 @@ public class InstallActivity extends Activity {
             if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
                 Uri uri = intent.getData();
                 String name = getContentName(resolver, uri);
-                String importfilepath = Environment.getExternalStorageDirectory().toString() + "/RVGLAssist/" + name;
+                String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist";
+                String importfilepath =  assistFolder + File.separator + name;
 
                 Log.v(">>>" , "Content intent detected: " + action + " : " + intent.getDataString() + " : " + intent.getType() + " : " + uri);
                 InputStream input = null;
                 try {
-                    File pasta = new File(importfilepath);
-                    pasta.mkdir();
+                    File pasta = new File(assistFolder);
+                    if (!pasta.exists() && !pasta.isDirectory())
+                        if (pasta.mkdir())
+                            Log.d(">>>", "Folders created");
+
                     input = resolver.openInputStream(uri);
                 } catch (FileNotFoundException e) {
                     e.printStackTrace();
@@ -53,20 +57,24 @@ public class InstallActivity extends Activity {
 
                 File file = new File(importfilepath);
 
-                SevenZFile sevenZFile = null;
                 try {
-                    sevenZFile = new SevenZFile(file);
-                    SevenZArchiveEntry entry = sevenZFile.getNextEntry();
-                    while(entry!=null){
-                        System.out.println(entry.getName());
-                        FileOutputStream out = new FileOutputStream(Environment.getExternalStorageDirectory().toString() + "/RVGLAssist/" + name + "/" + entry.getName());
+                    SevenZFile sevenZFile = new SevenZFile(file);
+                    SevenZArchiveEntry entry;
+                    while ((entry = sevenZFile.getNextEntry()) != null){
+                        if (entry.isDirectory()){
+                            continue;
+                        }
+                        File curfile = new File(assistFolder + File.separator + "unzipped" + File.separator, entry.getName());
+                        File parent = curfile.getParentFile();
+                        if (!parent.exists()) {
+                            parent.mkdirs();
+                        }
+                        FileOutputStream out = new FileOutputStream(curfile);
                         byte[] content = new byte[(int) entry.getSize()];
                         sevenZFile.read(content, 0, content.length);
                         out.write(content);
                         out.close();
-                        entry = sevenZFile.getNextEntry();
                     }
-                    sevenZFile.close();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
