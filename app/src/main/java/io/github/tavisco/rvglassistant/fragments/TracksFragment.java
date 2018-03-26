@@ -1,6 +1,7 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 
+import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -101,7 +102,12 @@ public class TracksFragment extends Fragment {
             public boolean onClick(View v, IAdapter<TrackItem> adapter, @NonNull TrackItem item, int position) {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
                 intent.putExtra("track", (new Gson()).toJson(item));
-                getActivity().startActivity(intent);
+
+                String transitionName = "transi_track_img";
+
+                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
+                startActivity(intent, transitionActivityOptions.toBundle());
+
                 return false;
             }
         });

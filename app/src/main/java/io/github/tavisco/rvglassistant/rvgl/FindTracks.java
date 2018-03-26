@@ -67,11 +67,11 @@ public class FindTracks {
         File infoFile = new File(path + "/"+track +".inf");
 
         if (!infoFile.isFile() || !infoFile.canRead()){
-            Log.d(">>>", "Erro arquivo " + track);
+            Log.d(">>>", "File error: " + track);
             return null;
         }
 
-        Scanner scanner = null;
+        Scanner scanner;
         ArrayList<String> infos = new ArrayList<String>();
         try {
             scanner = new Scanner(infoFile).useDelimiter("\n");
@@ -86,17 +86,16 @@ public class FindTracks {
         Pattern p = Pattern.compile("\\'(.*?)\\'");
         Matcher m = p.matcher(infos.get(4));
         if (m.find()) {
-            item.withName(m.group(0).replace("\'", ""));
+            item.setName(m.group(0).replace("\'", ""));
         }
 
         File imgFile = new File(Environment.getExternalStorageDirectory().toString() + "/RVGL/gfx/" + track + ".bmp");
         if (!imgFile.isFile() || !imgFile.canRead()){
-            Log.d(">>>", "Erro imagem " + track);
-            item.withImage(null);
+            Log.d(">>>", "Image error: " + track);
+            item.setImage(null);
         } else {
-            item.withImage(imgFile.getAbsolutePath());
+            item.setImage(imgFile.getAbsolutePath());
         }
-
 
         return item;
     }

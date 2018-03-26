@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -24,7 +23,7 @@ public class TrackInfoActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_track_info);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -34,7 +33,7 @@ public class TrackInfoActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(track.getTrackName());
 
-        final ImageView imageView = (ImageView) findViewById(R.id.backdrop);
+        final ImageView imageView = findViewById(R.id.backdrop);
 
         //Load image
         if (track.getTrackImgPath() != null){

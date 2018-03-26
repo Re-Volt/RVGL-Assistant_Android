@@ -15,8 +15,6 @@ import io.github.tavisco.rvglassistant.fragments.TracksFragment;
 
 public class MainActivity extends AppCompatActivity {
 
-    //https://github.com/mikepenz/FastAdapter
-
     private BottomNavigationView mBottomNav = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
