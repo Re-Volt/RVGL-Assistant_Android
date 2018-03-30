@@ -32,7 +32,8 @@
         </activity>
         <activity
             android:name=".InstallActivity"
-            android:label="@string/title_activity_install">
+            android:label="@string/title_activity_install"
+            android:theme="@style/AppTheme">
             <intent-filter android:label="Install to RVGL">
                 <action android:name="android.intent.action.VIEW" />
 
