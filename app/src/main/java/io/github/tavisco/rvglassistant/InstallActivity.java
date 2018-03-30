@@ -11,6 +11,8 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 
@@ -24,9 +26,21 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class InstallActivity extends AppCompatActivity {
 
+    private static final int ASSET_TYPE_UNKNOWN = -1;
+    private static final int ASSET_TYPE_CAR = 0;
+    private static final int ASSET_TYPE_LEVEL = 1;
+
     Intent pIntent;
+
+    @BindView(R.id.imgInstall)
+    ImageView imgInstall;
+    @BindView(R.id.tvInstallType)
+    TextView tvType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +48,8 @@ public class InstallActivity extends AppCompatActivity {
         setContentView(R.layout.activity_install);
 
         pIntent = getIntent();
+
+        ButterKnife.bind(this);
     }
 
     @Override
@@ -49,6 +65,7 @@ public class InstallActivity extends AppCompatActivity {
 
         private MaterialDialog dialog;
         private Context mContext;
+        String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist";
 
         public UnzipFile(Context context){
             mContext = context;
@@ -67,8 +84,7 @@ public class InstallActivity extends AppCompatActivity {
                 if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
                     Uri uri = intent.getData();
                     String name = getContentName(resolver, uri);
-                    String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist";
-                    String importfilepath =  assistFolder + File.separator + name;
+                    String unzipFile =  assistFolder + File.separator + name;
 
                     InputStream input = null;
                     try {
@@ -83,9 +99,9 @@ public class InstallActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    InputStreamToFile(input, importfilepath);
+                    InputStreamToFile(input, unzipFile);
 
-                    File file = new File(importfilepath);
+                    File file = new File(unzipFile);
 
                     try {
                         SevenZFile sevenZFile = new SevenZFile(file);
@@ -121,6 +137,15 @@ public class InstallActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String result) {
+            dialog.setTitle("Processing file");
+            dialog.setContent("Detecting asset type");
+
+            int type = detectAssetType();
+
+            dialog.setContent("Filling screen");
+
+
+
             dialog.dismiss();
 
             //Manipular View aqui
@@ -143,7 +168,29 @@ public class InstallActivity extends AppCompatActivity {
             dialog.setContent(values[0]);
         }
 
+        private int detectAssetType() {
+            File directory = new File(assistFolder + File.separator + "unzipped");
+
+            File[] files = directory.listFiles();
+
+
+            for (File file : files){
+                if (file.isDirectory()){
+                    String dirName = file.getName().toLowerCase();
+
+                    if (dirName.equals("levels")){
+                        return ASSET_TYPE_LEVEL;
+                    } else if (dirName.equals("cars")){
+                        return ASSET_TYPE_CAR;
+                    }
+                }
+            }
+
+            return ASSET_TYPE_UNKNOWN;
+        }
     }
+
+
 
 
     private void InputStreamToFile(InputStream in, String file) {

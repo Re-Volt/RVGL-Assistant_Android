@@ -1,4 +1,4 @@
-package io.github.tavisco.rvglassistant.rvgl;
+package io.github.tavisco.rvglassistant.utils;
 
 import android.os.Environment;
 import android.util.Log;
@@ -11,29 +11,28 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.items.CarItem;
 
 /**
- * Created by otavio.mpinheiro on 14/03/2018.
+ * Created by otavio.mpinheiro on 15/03/2018.
  */
 
-public class FindTracks {
+public class FindCars {
 
-
-    public static List<TrackItem> getAllTracks(){
+    public static List<CarItem> getAllCars() {
 
         List<String> dontShowTracks = new ArrayList<>();
         dontShowTracks.add("intro");
         dontShowTracks.add("frontend");
         dontShowTracks.add("stunts");
 
-        List<TrackItem> list = new ArrayList<>();
+        List<CarItem> list = new ArrayList<>();
 
-        String path = Environment.getExternalStorageDirectory().toString()+"/RVGL/levels";
+        String path = Environment.getExternalStorageDirectory().toString() + "/RVGL/cars";
         File directory = new File(path);
         File[] files = directory.listFiles();
 
-        if (!directory.isDirectory() || !directory.canRead() || files.length == 0){
+        if (!directory.isDirectory() || !directory.canRead() || files.length == 0) {
             return null;
         }
 
@@ -54,28 +53,28 @@ public class FindTracks {
         return list;
     }
 
-    private static TrackItem populateItem(String track){
-        TrackItem item = new TrackItem();
+    private static CarItem populateItem(String car) {
+        CarItem item = new CarItem();
 
-        String path = Environment.getExternalStorageDirectory().toString() + "/RVGL/levels/" + track;
+        String path = Environment.getExternalStorageDirectory().toString() + "/RVGL/cars/" + car;
         File directory = new File(path);
 
-        if (!directory.isDirectory() || !directory.canRead()){
+        if (!directory.isDirectory() || !directory.canRead()) {
             return null;
         }
 
-        File infoFile = new File(path + "/"+track +".inf");
+        File infoFile = new File(path + "/parameters.txt");
 
-        if (!infoFile.isFile() || !infoFile.canRead()){
-            Log.d(">>>", "File error: " + track);
+        if (!infoFile.isFile() || !infoFile.canRead()) {
+            Log.d(">>>", "Erro arquivo " + car);
             return null;
         }
 
-        Scanner scanner;
+        Scanner scanner = null;
         ArrayList<String> infos = new ArrayList<String>();
         try {
             scanner = new Scanner(infoFile).useDelimiter("\n");
-            while (scanner.hasNext()){
+            while (scanner.hasNext()) {
                 infos.add(scanner.next());
             }
             scanner.close();
@@ -83,19 +82,20 @@ public class FindTracks {
             e.printStackTrace();
         }
 
-        Pattern p = Pattern.compile("\\'(.*?)\\'");
-        Matcher m = p.matcher(infos.get(4));
+        Pattern p = Pattern.compile("\"(.*?)\"");
+        Matcher m = p.matcher(infos.get(7));
         if (m.find()) {
-            item.setName(m.group(0).replace("\'", ""));
+            item.withCarName(m.group(0).replace("\"", ""));
         }
 
-        File imgFile = new File(Environment.getExternalStorageDirectory().toString() + "/RVGL/gfx/" + track + ".bmp");
-        if (!imgFile.isFile() || !imgFile.canRead()){
-            Log.d(">>>", "Image error: " + track);
-            item.setImage(null);
+        File imgFile = new File(Environment.getExternalStorageDirectory().toString() + "/RVGL/cars/" + car + "/car.bmp");
+        if (!imgFile.isFile() || !imgFile.canRead()) {
+            Log.d(">>>", "Erro imagem " + car);
+            item.withCarImgPath(null);
         } else {
-            item.setImage(imgFile.getAbsolutePath());
+            item.withCarImgPath(imgFile.getAbsolutePath());
         }
+
 
         return item;
     }

@@ -18,9 +18,7 @@ import java.util.List;
 
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.items.CarItem;
-import io.github.tavisco.rvglassistant.items.TrackItem;
-import io.github.tavisco.rvglassistant.rvgl.FindCars;
-import io.github.tavisco.rvglassistant.rvgl.FindTracks;
+import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**
  * A simple {@link Fragment} subclass.

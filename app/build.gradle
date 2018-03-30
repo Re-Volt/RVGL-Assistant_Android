@@ -39,4 +39,6 @@ dependencies {
     compile 'org.apache.commons:commons-compress:1.16.1'
     compile group: 'org.tukaani', name: 'xz', version: '1.6'
     implementation 'com.afollestad.material-dialogs:core:0.9.6.0'
+    implementation 'com.github.bumptech.glide:glide:4.6.1'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
 }
