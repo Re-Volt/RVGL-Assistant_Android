@@ -5,6 +5,7 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -49,28 +50,46 @@ public class FindTracks {
             if (skip)
                 continue;
 
-            list.add(populateItem(file.getName()));
+            //String lvlPath = Environment.getExternalStorageDirectory().toString() + "/RVGL/levels/" + file.getName();
+            list.add(populateItem(file.getName(), false));
         }
         return list;
     }
 
-    private static TrackItem populateItem(String track){
+    public static TrackItem populateItem(String levelName, boolean isGettingInstalled){
         TrackItem item = new TrackItem();
 
-        String path = Environment.getExternalStorageDirectory().toString() + "/RVGL/levels/" + track;
-        File directory = new File(path);
+        String basePath;
 
-        if (!directory.isDirectory() || !directory.canRead()){
+        if (isGettingInstalled){
+            basePath = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped" + File.separator;
+        } else {
+            basePath = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGL" + File.separator;
+        }
+
+
+        File levelDirectory = new File(basePath + "levels" + File.separator + levelName);
+
+        if (!levelDirectory.isDirectory() || !levelDirectory.canRead()){
             return null;
         }
 
-        File infoFile = new File(path + "/"+track +".inf");
+        File infoFiles[] = levelDirectory.listFiles(new FilenameFilter() {
+            public boolean accept(File dir, String filename)
+            { return filename.endsWith(".inf"); }
+        } );
+
+        if (infoFiles.length == 0){
+            return null;
+        }
+
+        File infoFile = infoFiles[0];
 
         if (!infoFile.isFile() || !infoFile.canRead()){
-            Log.d(">>>", "File error: " + track);
             return null;
         }
 
+        // Detecting the ingame name of the level
         Scanner scanner;
         ArrayList<String> infos = new ArrayList<String>();
         try {
@@ -88,10 +107,15 @@ public class FindTracks {
         if (m.find()) {
             item.setName(m.group(0).replace("\'", ""));
         }
+        // End of detecting
 
-        File imgFile = new File(Environment.getExternalStorageDirectory().toString() + "/RVGL/gfx/" + track + ".bmp");
+
+        //String levelPathName = infoFile.getName().replace(".inf", "");
+        String levelImagemPath = basePath + "gfx" + File.separator + levelName + ".bmp";
+
+        File imgFile = new File(levelImagemPath);
         if (!imgFile.isFile() || !imgFile.canRead()){
-            Log.d(">>>", "Image error: " + track);
+            Log.d(">>>", "Image error: " + item.getTrackName());
             item.setImage(null);
         } else {
             item.setImage(imgFile.getAbsolutePath());

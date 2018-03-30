@@ -11,10 +11,12 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.bumptech.glide.Glide;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
@@ -28,6 +30,9 @@ import java.io.OutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.github.tavisco.rvglassistant.items.CarItem;
+import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.utils.FindTracks;
 
 public class InstallActivity extends AppCompatActivity {
 
@@ -55,6 +60,17 @@ public class InstallActivity extends AppCompatActivity {
     @Override
     public void onResume(){
         super.onResume();
+
+        //optimization to preset the correct height for our device
+        int screenWidth = this.getResources().getDisplayMetrics().widthPixels;
+        int finalHeight = (int) (screenWidth / 1.5) / 2;
+        imgInstall.setMinimumHeight(finalHeight);
+        imgInstall.setMaxHeight(finalHeight);
+        imgInstall.setAdjustViewBounds(false);
+        //set height as layoutParameter too
+        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) imgInstall.getLayoutParams();
+        lp.height = finalHeight;
+        imgInstall.setLayoutParams(lp);
 
         UnzipFile unzip = new UnzipFile(InstallActivity.this);
 
@@ -144,7 +160,27 @@ public class InstallActivity extends AppCompatActivity {
 
             dialog.setContent("Filling screen");
 
+            if (type == ASSET_TYPE_LEVEL){
 
+                File directory = new File(assistFolder + File.separator + "unzipped" + File.separator + "levels");
+                File[] files = directory.listFiles();
+
+                String levelFolderName = "";
+
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        levelFolderName = file.getName();
+                    }
+                }
+
+                TrackItem track = FindTracks.populateItem(levelFolderName, true);
+
+                if (track.getTrackImgPath() != null)
+                    Glide.with(InstallActivity.this).load(track.getTrackImgPath()).into(imgInstall);
+
+
+                tvType.setText(track.getTrackName());
+            }
 
             dialog.dismiss();
 

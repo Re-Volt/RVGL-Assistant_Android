@@ -9,6 +9,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
 import java.util.List;
@@ -80,10 +81,7 @@ public void bindView(CarItem.ViewHolder viewHolder,List<Object> payloads){
 
         //Load image
         if (carImgPath != null){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(carImgPath, options);
-            viewHolder.imageView.setImageBitmap(bitmap);
+            Glide.with(viewHolder.view.getContext()).load(carImgPath).into(viewHolder.imageView);
         }
 
 

@@ -9,12 +9,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.github.tavisco.rvglassistant.InstallActivity;
 import io.github.tavisco.rvglassistant.R;
 
 /**
@@ -88,10 +90,7 @@ public class TrackItem extends AbstractItem<TrackItem, TrackItem.ViewHolder> {
 
         //Load image
         if (trackImgPath != null) {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(trackImgPath, options);
-            viewHolder.imageView.setImageBitmap(bitmap);
+            Glide.with(viewHolder.view.getContext()).load(trackImgPath).into(viewHolder.imageView);
         }
 
 
