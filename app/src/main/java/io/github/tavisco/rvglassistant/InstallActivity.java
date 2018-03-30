@@ -32,6 +32,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.items.CarItem;
 import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.utils.FindCars;
 import io.github.tavisco.rvglassistant.utils.FindTracks;
 
 public class InstallActivity extends AppCompatActivity {
@@ -46,6 +47,8 @@ public class InstallActivity extends AppCompatActivity {
     ImageView imgInstall;
     @BindView(R.id.tvInstallType)
     TextView tvType;
+    @BindView(R.id.tvInstallName)
+    TextView tvName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,7 +84,7 @@ public class InstallActivity extends AppCompatActivity {
 
         private MaterialDialog dialog;
         private Context mContext;
-        String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist";
+        String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped";
 
         public UnzipFile(Context context){
             mContext = context;
@@ -105,6 +108,11 @@ public class InstallActivity extends AppCompatActivity {
                     InputStream input = null;
                     try {
                         File folder = new File(assistFolder);
+
+                        if (folder.exists())
+                            deleteRecursive(folder);
+
+
                         if (!folder.exists() && !folder.isDirectory())
                             folder.mkdir();
 
@@ -130,7 +138,7 @@ public class InstallActivity extends AppCompatActivity {
                             String fileName = entry.getName();
                             publishProgress(fileName);
 
-                            File curfile = new File(assistFolder + File.separator + "unzipped" + File.separator, fileName);
+                            File curfile = new File(assistFolder + File.separator, fileName);
                             File parent = curfile.getParentFile();
                             if (!parent.exists()) {
                                 parent.mkdirs();
@@ -161,8 +169,7 @@ public class InstallActivity extends AppCompatActivity {
             dialog.setContent("Filling screen");
 
             if (type == ASSET_TYPE_LEVEL){
-
-                File directory = new File(assistFolder + File.separator + "unzipped" + File.separator + "levels");
+                File directory = new File(assistFolder + File.separator + "levels");
                 File[] files = directory.listFiles();
 
                 String levelFolderName = "";
@@ -178,16 +185,31 @@ public class InstallActivity extends AppCompatActivity {
                 if (track.getTrackImgPath() != null)
                     Glide.with(InstallActivity.this).load(track.getTrackImgPath()).into(imgInstall);
 
+                tvType.setText("Type: Level");
+                tvName.setText("Name: " + track.getTrackName());
 
-                tvType.setText(track.getTrackName());
+            } else if (type == ASSET_TYPE_CAR){
+                File directory = new File(assistFolder + File.separator + "cars");
+                File[] files = directory.listFiles();
+
+                String carFolderName = "";
+
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        carFolderName = file.getName();
+                    }
+                }
+
+                CarItem car = FindCars.populateItem(carFolderName, true);
+
+                if (car.getCarImgPath() != null)
+                    Glide.with(InstallActivity.this).load(car.getCarImgPath()).into(imgInstall);
+
+                tvType.setText("Type: Car");
+                tvName.setText("Name: " + car.getCarName());
             }
 
             dialog.dismiss();
-
-            //Manipular View aqui
-
-
-
         }
 
         @Override
@@ -205,7 +227,7 @@ public class InstallActivity extends AppCompatActivity {
         }
 
         private int detectAssetType() {
-            File directory = new File(assistFolder + File.separator + "unzipped");
+            File directory = new File(assistFolder);
 
             File[] files = directory.listFiles();
 
@@ -227,7 +249,13 @@ public class InstallActivity extends AppCompatActivity {
     }
 
 
+    private void deleteRecursive(File fileOrDirectory) {
+        if (fileOrDirectory.isDirectory())
+            for (File child : fileOrDirectory.listFiles())
+                deleteRecursive(child);
 
+        fileOrDirectory.delete();
+    }
 
     private void InputStreamToFile(InputStream in, String file) {
         try {

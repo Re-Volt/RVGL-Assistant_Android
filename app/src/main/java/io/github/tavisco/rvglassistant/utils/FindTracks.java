@@ -6,11 +6,14 @@ import android.util.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import io.github.tavisco.rvglassistant.items.TrackItem;
 
@@ -50,7 +53,6 @@ public class FindTracks {
             if (skip)
                 continue;
 
-            //String lvlPath = Environment.getExternalStorageDirectory().toString() + "/RVGL/levels/" + file.getName();
             list.add(populateItem(file.getName(), false));
         }
         return list;
@@ -90,20 +92,34 @@ public class FindTracks {
         }
 
         // Detecting the ingame name of the level
-        Scanner scanner;
-        ArrayList<String> infos = new ArrayList<String>();
-        try {
-            scanner = new Scanner(infoFile).useDelimiter("\n");
-            while (scanner.hasNext()){
-                infos.add(scanner.next());
+        String lineTrackName = "";
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            try {
+                try (Stream<String> lines = Files.lines(infoFile.toPath())) {
+                    lineTrackName = lines.skip(4).findFirst().get();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
-            scanner.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+        } else {
+            Scanner scanner = null;
+            ArrayList<String> infos = new ArrayList<String>();
+            try {
+                scanner = new Scanner(infoFile).useDelimiter("\n");
+                while (scanner.hasNext()) {
+                    infos.add(scanner.next());
+                }
+                scanner.close();
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+
+            lineTrackName = infos.get(4);
         }
 
         Pattern p = Pattern.compile("\\'(.*?)\\'");
-        Matcher m = p.matcher(infos.get(4));
+        Matcher m = p.matcher(lineTrackName);
         if (m.find()) {
             item.setName(m.group(0).replace("\'", ""));
         }

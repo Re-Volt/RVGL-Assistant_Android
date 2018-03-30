@@ -24,53 +24,61 @@ import io.github.tavisco.rvglassistant.R;
 
 public class CarItem extends AbstractItem<CarItem, CarItem.ViewHolder> {
 
-private String carName;
-private String carDiscription;
-private String carImgPath;
+    private String carName;
+    private String carDiscription;
+    private String carImgPath;
 
-public CarItem withCarImgPath(String imagePath){
-        this.carImgPath=imagePath;
+    public CarItem withCarImgPath(String imagePath) {
+        this.carImgPath = imagePath;
         return this;
-        }
+    }
 
-public CarItem withCarName(String name){
-        this.carName=name;
+    public CarItem withCarName(String name) {
+        this.carName = name;
         return this;
-        }
+    }
 
-public CarItem withDiscription(String discription){
-        this.carDiscription=discription;
+    public CarItem withDiscription(String discription) {
+        this.carDiscription = discription;
         return this;
-        }
+    }
 
-/**
- * defines the type defining this item. must be unique. preferably an id
- *
- * @return the type
- */
-@Override
-public int getType(){
+    public String getCarImgPath() {
+        return carImgPath;
+    }
+
+    public String getCarName() {
+        return carName;
+    }
+
+    /**
+     * defines the type defining this item. must be unique. preferably an id
+     *
+     * @return the type
+     */
+    @Override
+    public int getType() {
         return R.id.track_item_id;
-        }
+    }
 
-/**
- * defines the layout which will be used for this item in the list
- *
- * @return the layout for this item
- */
-@Override
-public int getLayoutRes(){
+    /**
+     * defines the layout which will be used for this item in the list
+     *
+     * @return the layout for this item
+     */
+    @Override
+    public int getLayoutRes() {
         return R.layout.track_item;
-        }
+    }
 
-/**
- * binds the data of this item onto the viewHolder
- *
- * @param viewHolder the viewHolder of this item
- */
-@Override
-public void bindView(CarItem.ViewHolder viewHolder,List<Object> payloads){
-        super.bindView(viewHolder,payloads);
+    /**
+     * binds the data of this item onto the viewHolder
+     *
+     * @param viewHolder the viewHolder of this item
+     */
+    @Override
+    public void bindView(CarItem.ViewHolder viewHolder, List<Object> payloads) {
+        super.bindView(viewHolder, payloads);
 
         //get the context
         Context ctx = viewHolder.itemView.getContext();
@@ -80,53 +88,53 @@ public void bindView(CarItem.ViewHolder viewHolder,List<Object> payloads){
         viewHolder.imageView.setImageBitmap(null);
 
         //Load image
-        if (carImgPath != null){
+        if (carImgPath != null) {
             Glide.with(viewHolder.view.getContext()).load(carImgPath).into(viewHolder.imageView);
         }
 
 
-        }
+    }
 
-@Override
-public void unbindView(ViewHolder holder){
+    @Override
+    public void unbindView(ViewHolder holder) {
         super.unbindView(holder);
         holder.imageView.setImageDrawable(null);
         holder.trackName.setText(null);
         holder.trackDescription.setText(null);
-        }
-
-@Override
-public ViewHolder getViewHolder(View v){
-        return new ViewHolder(v);
-        }
-
-/**
- * our ViewHolder
- */
-protected static class ViewHolder extends RecyclerView.ViewHolder {
-    protected FrameLayout view;
-    @BindView(R.id.track_img)
-    protected ImageView imageView;
-    @BindView(R.id.tv_track_name)
-    protected TextView trackName;
-    @BindView(R.id.tv_track_description)
-    protected TextView trackDescription;
-
-    public ViewHolder(View view) {
-        super(view);
-        ButterKnife.bind(this, view);
-        this.view = (FrameLayout) view;
-
-        //optimization to preset the correct height for our device
-        int screenWidth = view.getContext().getResources().getDisplayMetrics().widthPixels;
-        int finalHeight = (int) (screenWidth / 1.5) / 2;
-        imageView.setMinimumHeight(finalHeight);
-        imageView.setMaxHeight(finalHeight);
-        imageView.setAdjustViewBounds(false);
-        //set height as layoutParameter too
-        FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) imageView.getLayoutParams();
-        lp.height = finalHeight;
-        imageView.setLayoutParams(lp);
     }
-}
+
+    @Override
+    public ViewHolder getViewHolder(View v) {
+        return new ViewHolder(v);
+    }
+
+    /**
+     * our ViewHolder
+     */
+    protected static class ViewHolder extends RecyclerView.ViewHolder {
+        protected FrameLayout view;
+        @BindView(R.id.track_img)
+        protected ImageView imageView;
+        @BindView(R.id.tv_track_name)
+        protected TextView trackName;
+        @BindView(R.id.tv_track_description)
+        protected TextView trackDescription;
+
+        public ViewHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+            this.view = (FrameLayout) view;
+
+            //optimization to preset the correct height for our device
+            int screenWidth = view.getContext().getResources().getDisplayMetrics().widthPixels;
+            int finalHeight = (int) (screenWidth / 1.5) / 2;
+            imageView.setMinimumHeight(finalHeight);
+            imageView.setMaxHeight(finalHeight);
+            imageView.setAdjustViewBounds(false);
+            //set height as layoutParameter too
+            FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) imageView.getLayoutParams();
+            lp.height = finalHeight;
+            imageView.setLayoutParams(lp);
+        }
+    }
 }
