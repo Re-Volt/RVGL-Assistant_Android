@@ -30,6 +30,7 @@ import java.io.OutputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.github.tavisco.rvglassistant.items.CarItem;
 import io.github.tavisco.rvglassistant.items.TrackItem;
 import io.github.tavisco.rvglassistant.utils.FindCars;
@@ -41,7 +42,7 @@ public class InstallActivity extends AppCompatActivity {
     private static final int ASSET_TYPE_CAR = 0;
     private static final int ASSET_TYPE_LEVEL = 1;
 
-    Intent pIntent;
+    private Intent pIntent;
 
     @BindView(R.id.imgInstall)
     ImageView imgInstall;
@@ -75,43 +76,51 @@ public class InstallActivity extends AppCompatActivity {
         lp.height = finalHeight;
         imgInstall.setLayoutParams(lp);
 
-        UnzipFile unzip = new UnzipFile(InstallActivity.this);
+        AsyncUnzipFile unzip = new AsyncUnzipFile(InstallActivity.this);
 
-        unzip.execute(pIntent);
+        unzip.execute(false);
     }
 
-    private class UnzipFile extends AsyncTask<Intent, String, String> {
+    private class AsyncUnzipFile extends AsyncTask<Boolean, String, String> {
 
         private MaterialDialog dialog;
         private Context mContext;
-        String assistFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped";
+        String destinationFolder;
+        boolean install;
 
-        public UnzipFile(Context context){
+        public AsyncUnzipFile(Context context){
             mContext = context;
         }
 
-
         @Override
-        protected String doInBackground(Intent... mIntent) {
-            Intent intent = mIntent[0];
-            String action = intent.getAction();
+        protected String doInBackground(Boolean... booleans) {
+            install = booleans[0];
+
+            if (install){
+                destinationFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGL";
+            } else {
+                destinationFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped";
+            }
+
+            String action = pIntent.getAction();
 
             if (action.compareTo(Intent.ACTION_VIEW) == 0) {
-                String scheme = intent.getScheme();
+                String scheme = pIntent.getScheme();
                 ContentResolver resolver = getContentResolver();
 
                 if (scheme.compareTo(ContentResolver.SCHEME_CONTENT) == 0) {
-                    Uri uri = intent.getData();
+                    Uri uri = pIntent.getData();
                     String name = getContentName(resolver, uri);
-                    String unzipFile =  assistFolder + File.separator + name;
+                    String unzipFile =  destinationFolder + File.separator + name;
 
                     InputStream input = null;
                     try {
-                        File folder = new File(assistFolder);
+                        File folder = new File(destinationFolder);
 
-                        if (folder.exists())
-                            deleteRecursive(folder);
-
+                        if (!install){
+                            if (folder.exists())
+                                deleteRecursive(folder);
+                        }
 
                         if (!folder.exists() && !folder.isDirectory())
                             folder.mkdir();
@@ -138,7 +147,7 @@ public class InstallActivity extends AppCompatActivity {
                             String fileName = entry.getName();
                             publishProgress(fileName);
 
-                            File curfile = new File(assistFolder + File.separator, fileName);
+                            File curfile = new File(destinationFolder + File.separator, fileName);
                             File parent = curfile.getParentFile();
                             if (!parent.exists()) {
                                 parent.mkdirs();
@@ -164,52 +173,63 @@ public class InstallActivity extends AppCompatActivity {
             dialog.setTitle("Processing file");
             dialog.setContent("Detecting asset type");
 
-            int type = detectAssetType();
+            int assetType = detectAssetType();
 
-            dialog.setContent("Filling screen");
+            if (install){
+                dialog.dismiss();
 
-            if (type == ASSET_TYPE_LEVEL){
-                File directory = new File(assistFolder + File.separator + "levels");
-                File[] files = directory.listFiles();
+                String item = assetType == ASSET_TYPE_CAR?"car":"level";
 
-                String levelFolderName = "";
+                new MaterialDialog.Builder(mContext)
+                        .title("Success!")
+                        .content("The " + item + " was installed successfully! Enjoy!")
+                        .positiveText("Ok")
+                        .show();
+            } else {
+                dialog.setContent("Filling screen");
 
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        levelFolderName = file.getName();
+                if (assetType == ASSET_TYPE_LEVEL){
+                    File directory = new File(destinationFolder + File.separator + "levels");
+                    File[] files = directory.listFiles();
+
+                    String levelFolderName = "";
+
+                    for (File file : files) {
+                        if (file.isDirectory()) {
+                            levelFolderName = file.getName();
+                        }
                     }
+
+                    TrackItem track = FindTracks.populateItem(levelFolderName, true);
+
+                    if (track.getTrackImgPath() != null)
+                        Glide.with(InstallActivity.this).load(track.getTrackImgPath()).into(imgInstall);
+
+                    tvType.setText("Type: Level");
+                    tvName.setText("Name: " + track.getTrackName());
+                } else if (assetType == ASSET_TYPE_CAR){
+                    File directory = new File(destinationFolder + File.separator + "cars");
+                    File[] files = directory.listFiles();
+
+                    String carFolderName = "";
+
+                    for (File file : files) {
+                        if (file.isDirectory()) {
+                            carFolderName = file.getName();
+                        }
+                    }
+
+                    CarItem car = FindCars.populateItem(carFolderName, true);
+
+                    if (car.getCarImgPath() != null)
+                        Glide.with(InstallActivity.this).load(car.getCarImgPath()).into(imgInstall);
+
+                    tvType.setText("Type: Car");
+                    tvName.setText("Name: " + car.getCarName());
                 }
 
-                TrackItem track = FindTracks.populateItem(levelFolderName, true);
-
-                if (track.getTrackImgPath() != null)
-                    Glide.with(InstallActivity.this).load(track.getTrackImgPath()).into(imgInstall);
-
-                tvType.setText("Type: Level");
-                tvName.setText("Name: " + track.getTrackName());
-
-            } else if (type == ASSET_TYPE_CAR){
-                File directory = new File(assistFolder + File.separator + "cars");
-                File[] files = directory.listFiles();
-
-                String carFolderName = "";
-
-                for (File file : files) {
-                    if (file.isDirectory()) {
-                        carFolderName = file.getName();
-                    }
-                }
-
-                CarItem car = FindCars.populateItem(carFolderName, true);
-
-                if (car.getCarImgPath() != null)
-                    Glide.with(InstallActivity.this).load(car.getCarImgPath()).into(imgInstall);
-
-                tvType.setText("Type: Car");
-                tvName.setText("Name: " + car.getCarName());
+                dialog.dismiss();
             }
-
-            dialog.dismiss();
         }
 
         @Override
@@ -227,10 +247,9 @@ public class InstallActivity extends AppCompatActivity {
         }
 
         private int detectAssetType() {
-            File directory = new File(assistFolder);
+            File directory = new File(Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped");
 
             File[] files = directory.listFiles();
-
 
             for (File file : files){
                 if (file.isDirectory()){
@@ -247,7 +266,6 @@ public class InstallActivity extends AppCompatActivity {
             return ASSET_TYPE_UNKNOWN;
         }
     }
-
 
     private void deleteRecursive(File fileOrDirectory) {
         if (fileOrDirectory.isDirectory())
@@ -286,4 +304,12 @@ public class InstallActivity extends AppCompatActivity {
             return null;
         }
     }
+
+    @OnClick(R.id.btnInstall)
+    public void installContent(){
+        AsyncUnzipFile unzip = new AsyncUnzipFile(InstallActivity.this);
+
+        unzip.execute(true);
+    }
+
 }
