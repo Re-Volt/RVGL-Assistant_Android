@@ -1,6 +1,7 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import io.github.tavisco.rvglassistant.R;
 
 /**
@@ -62,6 +64,8 @@ public class MainFragment extends Fragment {
     TextView tvUpdateStatus;
     @BindView(R.id.img_main_updateStatus)
     ImageView imgUpdateStatus;
+
+    boolean updateAvaiable = false;
 
     public MainFragment() {
         // Required empty public constructor
@@ -110,6 +114,10 @@ public class MainFragment extends Fragment {
     }
 
     public void checkForUpdates(){
+        cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
+        tvUpdateStatus.setText("Checking for updates...");
+        imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this.getContext());
         String url ="https://distribute.re-volt.io/releases/rvgl_version.txt";
@@ -119,13 +127,13 @@ public class MainFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Display the first 500 characters of the response string.
-                        compareWithLocalVersion(response);
+                        // Need to substring the version to not get garbage
+                        compareWithLocalVersion(response.substring(0, 7));
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                Log.d(">>>", "DEU ERRO!");
+                Log.d(">>>", error.getLocalizedMessage());
             }
         });
 
@@ -174,6 +182,7 @@ public class MainFragment extends Fragment {
 
         if (checkFailed){
             tvUpdateStatus.setText("Oops! Couldn't get the last version");
+            tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
             tvLastVersion.setText("Last version:\nCouldn't get the last version");
         } else {
             tvInstalledVersion.setText("Installed version:\n" + localVersion);
@@ -185,11 +194,22 @@ public class MainFragment extends Fragment {
                 imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
             } else {
                 cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
-                tvUpdateStatus.setText("Version " + lastVersion + " is avaiable to download!");
+                tvUpdateStatus.setText("Version " + lastVersion + " is avaiable to download!\nClick on this card to download.");
                 imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
+                updateAvaiable = true;
             }
         }
 
 
+    }
+
+    @OnClick(R.id.card_main_updateStatus)
+    public void clickCardUpdate(){
+        if (updateAvaiable){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://forum.re-volt.io/viewtopic.php?f=8&t=76"));
+            startActivity(browserIntent);
+        } else {
+            checkForUpdates();
+        }
     }
 }
