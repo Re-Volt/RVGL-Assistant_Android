@@ -15,6 +15,13 @@ import io.github.tavisco.rvglassistant.fragments.TracksFragment;
 
 public class MainActivity extends AppCompatActivity {
 
+    //This is the main activity
+    //the only thing that is handled here
+    //is the navbar.
+    //
+    //The remaining stuff about the main screen
+    //is located at fragments/MainFragment.java
+
     private BottomNavigationView mBottomNav = null;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
