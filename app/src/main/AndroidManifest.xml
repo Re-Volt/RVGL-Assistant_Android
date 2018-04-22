@@ -37,6 +37,7 @@
         <activity
             android:name=".InstallActivity"
             android:label="@string/title_activity_install"
+            android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme">
             <intent-filter android:label="Install to RVGL">
                 <action android:name="android.intent.action.VIEW" />
@@ -57,6 +58,10 @@
                 <data android:pathPattern=".*\\..*\\.7z" />
                 <data android:pathPattern=".*\\..*\\..*\\.7z" />
                 <data android:pathPattern=".*\\..*\\..*\\..*\\.7z" />
+                <data android:pathPattern=".*\\.zip" />
+                <data android:pathPattern=".*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\.zip" />
+                <data android:pathPattern=".*\\..*\\..*\\..*\\.zip" />
                 <!-- keep going if you need more -->
 
             </intent-filter>

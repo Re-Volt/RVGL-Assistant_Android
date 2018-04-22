@@ -81,8 +81,10 @@ public class FindCars {
             ArrayList<String> infos = new ArrayList<String>();
             try {
                 scanner = new Scanner(infoFile).useDelimiter("\n");
-                while (scanner.hasNext()) {
+                int counter = 0;
+                while (scanner.hasNext() && counter <=7) {
                     infos.add(scanner.next());
+                    counter++;
                 }
                 scanner.close();
             } catch (FileNotFoundException e) {

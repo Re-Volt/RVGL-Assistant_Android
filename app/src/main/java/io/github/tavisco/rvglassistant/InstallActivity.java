@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -21,12 +23,16 @@ import com.bumptech.glide.Glide;
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -50,11 +56,17 @@ public class InstallActivity extends AppCompatActivity {
     TextView tvType;
     @BindView(R.id.tvInstallName)
     TextView tvName;
+    @BindView(R.id.card_install_image)
+    CardView cardInstall;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_install);
+
+        //Toolbar toolbar = findViewById(R.id.toolbar);
+        //setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         pIntent = getIntent();
 
@@ -65,19 +77,23 @@ public class InstallActivity extends AppCompatActivity {
     public void onResume(){
         super.onResume();
 
-        //optimization to preset the correct height for our device
+        cardInstall.setMinimumHeight(cardInstall.getWidth());
+
+        //optimization to the imageView
         int screenWidth = this.getResources().getDisplayMetrics().widthPixels;
         int finalHeight = (int) (screenWidth / 1.5) / 2;
         imgInstall.setMinimumHeight(finalHeight);
         imgInstall.setMaxHeight(finalHeight);
         imgInstall.setAdjustViewBounds(false);
-        //set height as layoutParameter too
         FrameLayout.LayoutParams lp = (FrameLayout.LayoutParams) imgInstall.getLayoutParams();
         lp.height = finalHeight;
         imgInstall.setLayoutParams(lp);
 
+        //Instantiate a new AsyncUnzipFile task
         AsyncUnzipFile unzip = new AsyncUnzipFile(InstallActivity.this);
 
+        //The "false" here is to tell the task to not install
+        //the files to the game, just to unzip them
         unzip.execute(false);
     }
 
@@ -93,13 +109,24 @@ public class InstallActivity extends AppCompatActivity {
         }
 
         @Override
+        protected void onPreExecute() {
+            dialog = new MaterialDialog.Builder(mContext)
+                    .title("Unzipping file")
+                    .content("Start unzipping")
+                    .progress(true, 0)
+                    .show();
+        }
+
+        @Override
         protected String doInBackground(Boolean... booleans) {
             install = booleans[0];
 
             if (install){
-                destinationFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGL";
+                destinationFolder = Environment.getExternalStorageDirectory().toString()
+                        + File.separator + "RVGL";
             } else {
-                destinationFolder = Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped";
+                destinationFolder = Environment.getExternalStorageDirectory().toString()
+                        + File.separator + "RVGLAssist" + File.separator + "unzipped";
             }
 
             String action = pIntent.getAction();
@@ -118,6 +145,8 @@ public class InstallActivity extends AppCompatActivity {
                         File folder = new File(destinationFolder);
 
                         if (!install){
+                            //We need to clean up files from
+                            //previous installations
                             if (folder.exists())
                                 deleteRecursive(folder);
                         }
@@ -132,40 +161,83 @@ public class InstallActivity extends AppCompatActivity {
                         e.printStackTrace();
                     }
 
-                    InputStreamToFile(input, unzipFile);
+                    boolean isZip = name.matches(".*\\.zip");
+                    boolean is7Z = name.matches(".*\\.7z") || name.matches(".*\\.7Z");
 
-                    File file = new File(unzipFile);
+                    if (is7Z){
+                        InputStreamToFile(input, unzipFile);
 
-                    try {
-                        SevenZFile sevenZFile = new SevenZFile(file);
-                        SevenZArchiveEntry entry;
-                        while ((entry = sevenZFile.getNextEntry()) != null){
-                            if (entry.isDirectory()){
-                                continue;
+                        File file = new File(unzipFile);
+
+                        try {
+                            SevenZFile sevenZFile = new SevenZFile(file);
+                            SevenZArchiveEntry entry;
+                            while ((entry = sevenZFile.getNextEntry()) != null){
+                                if (entry.isDirectory()){
+                                    continue;
+                                }
+
+                                String fileName = entry.getName();
+                                publishProgress(fileName);
+
+                                File curfile = new File(destinationFolder
+                                        + File.separator, fileName);
+                                File parent = curfile.getParentFile();
+                                if (!parent.exists()) {
+                                    parent.mkdirs();
+                                }
+                                FileOutputStream out = new FileOutputStream(curfile);
+                                byte[] content = new byte[(int) entry.getSize()];
+                                sevenZFile.read(content, 0, content.length);
+                                out.write(content);
+                                out.close();
                             }
-
-                            String fileName = entry.getName();
-                            publishProgress(fileName);
-
-                            File curfile = new File(destinationFolder + File.separator, fileName);
-                            File parent = curfile.getParentFile();
-                            if (!parent.exists()) {
-                                parent.mkdirs();
-                            }
-                            FileOutputStream out = new FileOutputStream(curfile);
-                            byte[] content = new byte[(int) entry.getSize()];
-                            sevenZFile.read(content, 0, content.length);
-                            out.write(content);
-                            out.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
                         }
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                    }
+
+                    if (isZip) {
+                        try {
+                            ZipInputStream zipStream = new ZipInputStream(input);
+                            ZipEntry zEntry = null;
+                            while ((zEntry = zipStream.getNextEntry()) != null) {
+                                publishProgress(zEntry.getName());
+                                if (zEntry.isDirectory()) {
+                                    hanldeDirectory(zEntry.getName());
+                                } else {
+                                    FileOutputStream fout = new FileOutputStream(
+                                            this.destinationFolder + "/" + zEntry.getName());
+                                    BufferedOutputStream bufout = new BufferedOutputStream(fout);
+                                    byte[] buffer = new byte[1024];
+                                    int read = 0;
+                                    while ((read = zipStream.read(buffer)) != -1) {
+                                        bufout.write(buffer, 0, read);
+                                    }
+
+                                    zipStream.closeEntry();
+                                    bufout.flush();
+                                    bufout.close();
+                                    fout.close();
+                                }
+                            }
+                            zipStream.close();
+                        } catch (Exception e) {
+                            Log.d("Unzip", "Unzipping failed");
+                            e.printStackTrace();
+                        }
                     }
                 }
 
             }
 
+            //TODO: Make return type a real thing
             return "ok";
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            dialog.setContent(values[0]);
         }
 
         @Override
@@ -178,7 +250,7 @@ public class InstallActivity extends AppCompatActivity {
             if (install){
                 dialog.dismiss();
 
-                String item = assetType == ASSET_TYPE_CAR?"car":"level";
+                String item = (assetType == ASSET_TYPE_CAR?"car":"level");
 
                 new MaterialDialog.Builder(mContext)
                         .title("Success!")
@@ -232,22 +304,8 @@ public class InstallActivity extends AppCompatActivity {
             }
         }
 
-        @Override
-        protected void onPreExecute() {
-            dialog = new MaterialDialog.Builder(mContext)
-                    .title("Unzipping file")
-                    .content("Start unzipping")
-                    .progress(true, 0)
-                    .show();
-        }
-
-        @Override
-        protected void onProgressUpdate(String... values) {
-            dialog.setContent(values[0]);
-        }
-
         private int detectAssetType() {
-            File directory = new File(Environment.getExternalStorageDirectory().toString() + File.separator + "RVGLAssist" + File.separator + "unzipped");
+            File directory = new File(destinationFolder);
 
             File[] files = directory.listFiles();
 
@@ -265,6 +323,13 @@ public class InstallActivity extends AppCompatActivity {
 
             return ASSET_TYPE_UNKNOWN;
         }
+
+        public void hanldeDirectory(String dir) {
+            File f = new File(this.destinationFolder + File.separator + dir);
+            if (!f.isDirectory()) {
+                f.mkdirs();
+            }
+        }
     }
 
     private void deleteRecursive(File fileOrDirectory) {
@@ -277,7 +342,6 @@ public class InstallActivity extends AppCompatActivity {
 
     private void InputStreamToFile(InputStream in, String file) {
         try {
-
             OutputStream out = new FileOutputStream(new File(file));
 
             int size = 0;
@@ -290,7 +354,7 @@ public class InstallActivity extends AppCompatActivity {
             out.close();
         }
         catch (Exception e) {
-            Log.e("MainActivity", "InputStreamToFile exception: " + e.getMessage());
+            Log.e(">>>", "InputStreamToFile exception: " + e.getMessage());
         }
     }
 
