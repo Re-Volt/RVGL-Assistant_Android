@@ -114,8 +114,12 @@ public class MainFragment extends Fragment {
     }
 
     public void checkForUpdates(){
+        final String localVersion = getLocalGameVersion();
+
+
         cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
         tvUpdateStatus.setText("Checking for updates...");
+        tvLastVersion.setText("Last version:\nFetching...");
         imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
 
         // Instantiate the RequestQueue.
@@ -128,7 +132,7 @@ public class MainFragment extends Fragment {
                     @Override
                     public void onResponse(String response) {
                         // Need to substring the version to not get garbage
-                        compareWithLocalVersion(response.substring(0, 7));
+                        compareWithLocalVersion(localVersion ,response.substring(0, 7));
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -141,7 +145,7 @@ public class MainFragment extends Fragment {
         queue.add(stringRequest);
     }
 
-    public void compareWithLocalVersion(String lastVersion){
+    public String getLocalGameVersion(){
         boolean checkFailed = false;
         String localVersion = "-1";
         String basePath = Environment.getExternalStorageDirectory().toString() + File.separator +
@@ -178,14 +182,23 @@ public class MainFragment extends Fragment {
 
             if (!checkFailed)
                 localVersion = infos.get(0);
+
         }
 
-        if (checkFailed){
+        if(!checkFailed)
+            tvInstalledVersion.setText("Installed version:\n" + localVersion);
+
+        return localVersion;
+    }
+
+    public void compareWithLocalVersion(String localVersion, String lastVersion){
+
+
+        if (localVersion.equals("-1") || lastVersion.equals("-1")){
             tvUpdateStatus.setText("Oops! Couldn't get the last version");
             tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
             tvLastVersion.setText("Last version:\nCouldn't get the last version");
         } else {
-            tvInstalledVersion.setText("Installed version:\n" + localVersion);
             tvLastVersion.setText("Last version:\n" + lastVersion);
 
             if (localVersion.equals(lastVersion)){

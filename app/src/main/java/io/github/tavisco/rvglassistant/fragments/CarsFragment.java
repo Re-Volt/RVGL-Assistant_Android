@@ -19,6 +19,7 @@ import java.util.List;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.items.CarItem;
 import io.github.tavisco.rvglassistant.utils.FindCars;
+import io.github.tavisco.rvglassistant.utils.FindTracks;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -82,11 +83,13 @@ public class CarsFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        List<CarItem> items = FindCars.getAllCars();
+        FindCars.getAllCars(mItemAdapter);
 
-        if (items != null){
-            mItemAdapter.add(items);
-        }
+        //List<CarItem> items = FindCars.getAllCars();
+        //
+        //if (items != null){
+        //    mItemAdapter.add(items);
+        //}
     }
 
 }

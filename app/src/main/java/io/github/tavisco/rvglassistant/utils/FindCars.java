@@ -1,7 +1,10 @@
 package io.github.tavisco.rvglassistant.utils;
 
+import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
+
+import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -23,7 +26,7 @@ import io.github.tavisco.rvglassistant.items.CarItem;
 
 public class FindCars {
 
-    public static List<CarItem> getAllCars() {
+    public static void getAllCars(ItemAdapter<CarItem> itemAdapter) {
 
         List<CarItem> list = new ArrayList<>();
 
@@ -32,13 +35,15 @@ public class FindCars {
         File[] files = directory.listFiles();
 
         if (!directory.isDirectory() || !directory.canRead() || files.length == 0) {
-            return null;
+            //return null;
         }
 
         for (File file : files) {
+            CarItem car = populateItem(file.getName(), false);
+            itemAdapter.add(car);
             list.add(populateItem(file.getName(), false));
         }
-        return list;
+        //return list;
     }
 
     public static CarItem populateItem(String carName, boolean isGettingInstalled) {
