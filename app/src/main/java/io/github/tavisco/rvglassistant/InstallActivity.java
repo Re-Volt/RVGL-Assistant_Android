@@ -7,11 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -25,7 +23,6 @@ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,16 +34,13 @@ import java.util.zip.ZipInputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.github.tavisco.rvglassistant.items.CarItem;
-import io.github.tavisco.rvglassistant.items.TrackItem;
-import io.github.tavisco.rvglassistant.utils.FindCars;
-import io.github.tavisco.rvglassistant.utils.FindTracks;
+import io.github.tavisco.rvglassistant.objects.ItemType;
+import io.github.tavisco.rvglassistant.objects.BaseItem;
+import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.utils.ItemParser;
+import io.github.tavisco.rvglassistant.utils.ItemTypeDeterminer;
 
 public class InstallActivity extends AppCompatActivity {
-
-    private static final int ASSET_TYPE_UNKNOWN = -1;
-    private static final int ASSET_TYPE_CAR = 0;
-    private static final int ASSET_TYPE_LEVEL = 1;
 
     private Intent pIntent;
 
@@ -58,6 +52,8 @@ public class InstallActivity extends AppCompatActivity {
     TextView tvName;
     @BindView(R.id.card_install_image)
     CardView cardInstall;
+
+    boolean alreadyCreated = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +88,12 @@ public class InstallActivity extends AppCompatActivity {
         //Instantiate a new AsyncUnzipFile task
         AsyncUnzipFile unzip = new AsyncUnzipFile(InstallActivity.this);
 
-        //The "false" here is to tell the task to not install
-        //the files to the game, just to unzip them
-        unzip.execute(false);
+        if (!alreadyCreated){
+            alreadyCreated = true;
+            //The "false" here is to tell the task to not install
+            //the files to the game, just to unzip them
+            unzip.execute(false);
+        }
     }
 
     private class AsyncUnzipFile extends AsyncTask<Boolean, String, String> {
@@ -122,11 +121,9 @@ public class InstallActivity extends AppCompatActivity {
             install = booleans[0];
 
             if (install){
-                destinationFolder = Environment.getExternalStorageDirectory().toString()
-                        + File.separator + "RVGL";
+                destinationFolder = Constants.RVGL_PATH;
             } else {
-                destinationFolder = Environment.getExternalStorageDirectory().toString()
-                        + File.separator + "RVGLAssist" + File.separator + "unzipped";
+                destinationFolder = Constants.RVGL_ASSIST_UNZIP_PATH;
             }
 
             String action = pIntent.getAction();
@@ -245,83 +242,42 @@ public class InstallActivity extends AppCompatActivity {
             dialog.setTitle("Processing file");
             dialog.setContent("Detecting asset type");
 
-            int assetType = detectAssetType();
+            ItemType assetType = ItemTypeDeterminer.determine(destinationFolder);
 
             if (install){
                 dialog.dismiss();
 
-                String item = (assetType == ASSET_TYPE_CAR?"car":"level");
-
                 new MaterialDialog.Builder(mContext)
                         .title("Success!")
-                        .content("The " + item + " was installed successfully! Enjoy!")
+                        .content("The " + assetType.getTypeText() + " was installed successfully! Enjoy!")
                         .positiveText("Ok")
                         .show();
             } else {
                 dialog.setContent("Filling screen");
 
-                if (assetType == ASSET_TYPE_LEVEL){
-                    File directory = new File(destinationFolder + File.separator + "levels");
-                    File[] files = directory.listFiles();
+                //if (assetType == Constants.ITEM_TYPE_LEVEL){
+                File directory = new File(destinationFolder + File.separator + assetType.getTypePath());
+                File[] files = directory.listFiles();
 
-                    String levelFolderName = "";
+                String levelFolderName = "";
 
-                    for (File file : files) {
-                        if (file.isDirectory()) {
-                            levelFolderName = file.getName();
-                        }
+                for (File file : files) {
+                    if (file.isDirectory()) {
+                        levelFolderName = file.getName();
                     }
-
-                    TrackItem track = FindTracks.populateItem(levelFolderName, true);
-
-                    if (track.getTrackImgPath() != null)
-                        Glide.with(InstallActivity.this).load(track.getTrackImgPath()).into(imgInstall);
-
-                    tvType.setText("Type: Level");
-                    tvName.setText("Name: " + track.getTrackName());
-                } else if (assetType == ASSET_TYPE_CAR){
-                    File directory = new File(destinationFolder + File.separator + "cars");
-                    File[] files = directory.listFiles();
-
-                    String carFolderName = "";
-
-                    for (File file : files) {
-                        if (file.isDirectory()) {
-                            carFolderName = file.getName();
-                        }
-                    }
-
-                    CarItem car = FindCars.populateItem(carFolderName, true);
-
-                    if (car.getCarImgPath() != null)
-                        Glide.with(InstallActivity.this).load(car.getCarImgPath()).into(imgInstall);
-
-                    tvType.setText("Type: Car");
-                    tvName.setText("Name: " + car.getCarName());
                 }
+
+                BaseItem item = ItemParser.parse(levelFolderName, destinationFolder);
+                    //TrackViewItem track = FindTracks.populateItem(levelFolderName, true);
+
+                if (item.getImagePath() != null)
+                    Glide.with(InstallActivity.this).load(item.getImagePath()).into(imgInstall);
+
+                tvType.setText("Type: " + item.getType().getTypeText());
+                tvName.setText("Name: " + item.getName());
 
                 dialog.dismiss();
             }
-        }
-
-        private int detectAssetType() {
-            File directory = new File(destinationFolder);
-
-            File[] files = directory.listFiles();
-
-            for (File file : files){
-                if (file.isDirectory()){
-                    String dirName = file.getName().toLowerCase();
-
-                    if (dirName.equals("levels")){
-                        return ASSET_TYPE_LEVEL;
-                    } else if (dirName.equals("cars")){
-                        return ASSET_TYPE_CAR;
-                    }
-                }
-            }
-
-            return ASSET_TYPE_UNKNOWN;
         }
 
         public void hanldeDirectory(String dir) {

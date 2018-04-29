@@ -51,7 +51,7 @@
                 <!--
                     Work around Android's ugly primitive PatternMatcher
                     implementation that can't cope with finding a . early in
-                    the path unless it's explicitly matched.
+                    the itemPath unless it's explicitly matched.
                 -->
                 <data android:host="*" />
                 <data android:pathPattern=".*\\.7z" />

@@ -14,12 +14,10 @@ import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.util.Arrays;
-import java.util.List;
 
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.items.CarItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
 import io.github.tavisco.rvglassistant.utils.FindCars;
-import io.github.tavisco.rvglassistant.utils.FindTracks;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -31,9 +29,9 @@ public class CarsFragment extends Fragment {
     //our rv
     RecyclerView mRecyclerView;
     //save our FastAdapter
-    private FastAdapter<CarItem> mFastAdapter;
+    private FastAdapter<CarViewItem> mFastAdapter;
     //save our FastAdapter
-    private ItemAdapter<CarItem> mItemAdapter;
+    private ItemAdapter<CarViewItem> mItemAdapter;
 
     public CarsFragment() {
         // Required empty public constructor
@@ -85,7 +83,7 @@ public class CarsFragment extends Fragment {
 
         FindCars.getAllCars(mItemAdapter);
 
-        //List<CarItem> items = FindCars.getAllCars();
+        //List<CarViewItem> items = FindCars.getAllCars();
         //
         //if (items != null){
         //    mItemAdapter.add(items);

@@ -24,7 +24,7 @@ import java.util.List;
 
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.TrackInfoActivity;
-import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.TrackViewItem;
 import io.github.tavisco.rvglassistant.utils.FindTracks;
 
 /**
@@ -37,9 +37,9 @@ public class TracksFragment extends Fragment {
     //our rv
     RecyclerView mRecyclerView;
     //save our FastAdapter
-    private FastAdapter<TrackItem> mFastAdapter;
+    private FastAdapter<TrackViewItem> mFastAdapter;
     //save our FastAdapter
-    private ItemAdapter<TrackItem> mItemAdapter;
+    private ItemAdapter<TrackViewItem> mItemAdapter;
 
     public TracksFragment() {
         // Required empty public constructor
@@ -87,16 +87,16 @@ public class TracksFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        List<TrackItem> items = FindTracks.getAllTracks();
+        List<TrackViewItem> items = FindTracks.getAllTracks();
 
         if (items != null){
             mItemAdapter.add(items);
         }
 
         //configure our fastAdapter
-        mFastAdapter.withOnClickListener(new OnClickListener<TrackItem>() {
+        mFastAdapter.withOnClickListener(new OnClickListener<TrackViewItem>() {
             @Override
-            public boolean onClick(View v, IAdapter<TrackItem> adapter, @NonNull TrackItem item, int position) {
+            public boolean onClick(View v, IAdapter<TrackViewItem> adapter, @NonNull TrackViewItem item, int position) {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
                 intent.putExtra("track", (new Gson()).toJson(item));
 

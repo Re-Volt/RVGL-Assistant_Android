@@ -1,8 +1,6 @@
-package io.github.tavisco.rvglassistant.items;
+package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.support.annotation.NonNull;
+import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -16,43 +14,21 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.github.tavisco.rvglassistant.InstallActivity;
 import io.github.tavisco.rvglassistant.R;
+import io.github.tavisco.rvglassistant.objects.BaseItem;
+import io.github.tavisco.rvglassistant.objects.CarItem;
 
 /**
- * Created by Tavisco on 14/03/2018.
+ * Created by otavio.mpinheiro on 15/03/2018.
  */
 
-public class TrackItem extends AbstractItem<TrackItem, TrackItem.ViewHolder> {
+public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolder> {
 
-    private String trackName;
-    // private String trackDiscription;
-    private String trackImgPath;
-
-    public String getTrackName() {
-        return trackName;
+    public CarViewItem(CarItem car) {
+        this.car = car;
     }
 
-    /*public String getTrackDiscription() {
-        return trackDiscription;
-    }*/
-
-    public String getTrackImgPath() {
-        return trackImgPath;
-    }
-
-    public void setImage(String trackImage) {
-        this.trackImgPath = trackImage;
-    }
-
-    public void setName(String trackName) {
-        this.trackName = trackName;
-    }
-
-    /*public TrackItem withDiscription(String discription) {
-        this.trackDiscription = discription;
-        return this;
-    }*/
+    private CarItem car;
 
 
     /**
@@ -81,32 +57,34 @@ public class TrackItem extends AbstractItem<TrackItem, TrackItem.ViewHolder> {
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(@NonNull TrackItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
+    public void bindView(CarViewItem.ViewHolder viewHolder, List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        viewHolder.trackName.setText(trackName);
-        // viewHolder.trackDescription.setText(trackDiscription);
+        //get the context
+        Context ctx = viewHolder.itemView.getContext();
+
+        viewHolder.trackName.setText(car.getName());
+        //viewHolder.trackDescription.setText(carDiscription);
         viewHolder.imageView.setImageBitmap(null);
 
         //Load image
-        if (trackImgPath != null) {
-            Glide.with(viewHolder.view.getContext()).load(trackImgPath).into(viewHolder.imageView);
+        if (car.getImagePath() != null) {
+            Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
         }
 
 
     }
 
     @Override
-    public void unbindView(@NonNull ViewHolder holder) {
+    public void unbindView(ViewHolder holder) {
         super.unbindView(holder);
         holder.imageView.setImageDrawable(null);
         holder.trackName.setText(null);
         holder.trackDescription.setText(null);
     }
 
-    @NonNull
     @Override
-    public ViewHolder getViewHolder(@NonNull View v) {
+    public ViewHolder getViewHolder(View v) {
         return new ViewHolder(v);
     }
 
@@ -116,13 +94,13 @@ public class TrackItem extends AbstractItem<TrackItem, TrackItem.ViewHolder> {
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         protected FrameLayout view;
         @BindView(R.id.track_img)
-        ImageView imageView;
+        protected ImageView imageView;
         @BindView(R.id.tv_track_name)
-        TextView trackName;
+        protected TextView trackName;
         @BindView(R.id.tv_track_description)
-        TextView trackDescription;
+        protected TextView trackDescription;
 
-        ViewHolder(View view) {
+        public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.view = (FrameLayout) view;

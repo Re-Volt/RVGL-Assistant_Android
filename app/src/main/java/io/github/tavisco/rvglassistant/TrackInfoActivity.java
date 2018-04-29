@@ -13,11 +13,11 @@ import android.widget.ImageView;
 
 import com.google.gson.Gson;
 
-import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.TrackViewItem;
 
 public class TrackInfoActivity extends AppCompatActivity {
 
-    TrackItem track = null;
+    TrackViewItem track = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +29,7 @@ public class TrackInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String jsonTrack = intent.getStringExtra("track");
-        track = new Gson().fromJson(jsonTrack, TrackItem.class);
+        track = new Gson().fromJson(jsonTrack, TrackViewItem.class);
 
         getSupportActionBar().setTitle(track.getTrackName());
 

@@ -1,8 +1,6 @@
-package io.github.tavisco.rvglassistant.items;
+package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -19,37 +17,40 @@ import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 
 /**
- * Created by otavio.mpinheiro on 15/03/2018.
+ * Created by Tavisco on 14/03/2018.
  */
 
-public class CarItem extends AbstractItem<CarItem, CarItem.ViewHolder> {
+public class TrackViewItem extends AbstractItem<TrackViewItem, TrackViewItem.ViewHolder> {
 
-    private String carName;
-    private String carDiscription;
-    private String carImgPath;
+    private String trackName;
+    // private String trackDiscription;
+    private String trackImgPath;
 
-    public CarItem withCarImgPath(String imagePath) {
-        this.carImgPath = imagePath;
+    public String getTrackName() {
+        return trackName;
+    }
+
+    /*public String getTrackDiscription() {
+        return trackDiscription;
+    }*/
+
+    public String getTrackImgPath() {
+        return trackImgPath;
+    }
+
+    public void setImage(String trackImage) {
+        this.trackImgPath = trackImage;
+    }
+
+    public void setName(String trackName) {
+        this.trackName = trackName;
+    }
+
+    /*public TrackViewItem withDiscription(String discription) {
+        this.trackDiscription = discription;
         return this;
-    }
+    }*/
 
-    public CarItem withCarName(String name) {
-        this.carName = name;
-        return this;
-    }
-
-    public CarItem withDiscription(String discription) {
-        this.carDiscription = discription;
-        return this;
-    }
-
-    public String getCarImgPath() {
-        return carImgPath;
-    }
-
-    public String getCarName() {
-        return carName;
-    }
 
     /**
      * defines the type defining this item. must be unique. preferably an id
@@ -77,34 +78,32 @@ public class CarItem extends AbstractItem<CarItem, CarItem.ViewHolder> {
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(CarItem.ViewHolder viewHolder, List<Object> payloads) {
+    public void bindView(@NonNull TrackViewItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        //get the context
-        Context ctx = viewHolder.itemView.getContext();
-
-        viewHolder.trackName.setText(carName);
-        viewHolder.trackDescription.setText(carDiscription);
+        viewHolder.trackName.setText(trackName);
+        // viewHolder.trackDescription.setText(trackDiscription);
         viewHolder.imageView.setImageBitmap(null);
 
         //Load image
-        if (carImgPath != null) {
-            Glide.with(viewHolder.view.getContext()).load(carImgPath).into(viewHolder.imageView);
+        if (trackImgPath != null) {
+            Glide.with(viewHolder.view.getContext()).load(trackImgPath).into(viewHolder.imageView);
         }
 
 
     }
 
     @Override
-    public void unbindView(ViewHolder holder) {
+    public void unbindView(@NonNull ViewHolder holder) {
         super.unbindView(holder);
         holder.imageView.setImageDrawable(null);
         holder.trackName.setText(null);
         holder.trackDescription.setText(null);
     }
 
+    @NonNull
     @Override
-    public ViewHolder getViewHolder(View v) {
+    public ViewHolder getViewHolder(@NonNull View v) {
         return new ViewHolder(v);
     }
 
@@ -114,13 +113,13 @@ public class CarItem extends AbstractItem<CarItem, CarItem.ViewHolder> {
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         protected FrameLayout view;
         @BindView(R.id.track_img)
-        protected ImageView imageView;
+        ImageView imageView;
         @BindView(R.id.tv_track_name)
-        protected TextView trackName;
+        TextView trackName;
         @BindView(R.id.tv_track_description)
-        protected TextView trackDescription;
+        TextView trackDescription;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.view = (FrameLayout) view;

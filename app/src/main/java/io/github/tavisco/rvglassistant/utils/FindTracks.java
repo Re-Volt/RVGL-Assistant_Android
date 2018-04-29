@@ -15,7 +15,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import io.github.tavisco.rvglassistant.items.TrackItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.TrackViewItem;
 
 /**
  * Created by otavio.mpinheiro on 14/03/2018.
@@ -24,14 +24,14 @@ import io.github.tavisco.rvglassistant.items.TrackItem;
 public class FindTracks {
 
 
-    public static List<TrackItem> getAllTracks(){
+    public static List<TrackViewItem> getAllTracks(){
 
         List<String> dontShowTracks = new ArrayList<>();
         dontShowTracks.add("intro");
         dontShowTracks.add("frontend");
         dontShowTracks.add("stunts");
 
-        List<TrackItem> list = new ArrayList<>();
+        List<TrackViewItem> list = new ArrayList<>();
 
         String path = Environment.getExternalStorageDirectory().toString()+"/RVGL/levels";
         File directory = new File(path);
@@ -58,8 +58,8 @@ public class FindTracks {
         return list;
     }
 
-    public static TrackItem populateItem(String levelName, boolean isGettingInstalled){
-        TrackItem item = new TrackItem();
+    public static TrackViewItem populateItem(String levelName, boolean isGettingInstalled){
+        TrackViewItem item = new TrackViewItem();
 
         String basePath;
 
