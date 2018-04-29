@@ -1,6 +1,7 @@
 package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -10,6 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
@@ -17,6 +19,7 @@ import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
+import io.github.tavisco.rvglassistant.objects.Constants;
 
 /**
  * Created by otavio.mpinheiro on 15/03/2018.
@@ -66,10 +69,13 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
 
         //Load image
         if (car.getImagePath() != null) {
-            Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
+            File image = new File(car.getImagePath());
+            if (image.isFile() && image.canRead()) {
+                Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
+            } else {
+                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
+            }
         }
-
-
     }
 
     @Override
