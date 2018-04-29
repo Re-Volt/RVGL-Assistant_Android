@@ -10,47 +10,26 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
+import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
+import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.objects.LevelItem;
 
 /**
  * Created by Tavisco on 14/03/2018.
  */
 
-public class TrackViewItem extends AbstractItem<TrackViewItem, TrackViewItem.ViewHolder> {
+public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.ViewHolder> {
 
-    private String trackName;
-    // private String trackDiscription;
-    private String trackImgPath;
+    private LevelItem level;
 
-    public String getTrackName() {
-        return trackName;
+    public LevelViewItem(LevelItem lvl) {
+        level = lvl;
     }
-
-    /*public String getTrackDiscription() {
-        return trackDiscription;
-    }*/
-
-    public String getTrackImgPath() {
-        return trackImgPath;
-    }
-
-    public void setImage(String trackImage) {
-        this.trackImgPath = trackImage;
-    }
-
-    public void setName(String trackName) {
-        this.trackName = trackName;
-    }
-
-    /*public TrackViewItem withDiscription(String discription) {
-        this.trackDiscription = discription;
-        return this;
-    }*/
-
 
     /**
      * defines the type defining this item. must be unique. preferably an id
@@ -78,16 +57,19 @@ public class TrackViewItem extends AbstractItem<TrackViewItem, TrackViewItem.Vie
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(@NonNull TrackViewItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
+    public void bindView(@NonNull LevelViewItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        viewHolder.trackName.setText(trackName);
-        // viewHolder.trackDescription.setText(trackDiscription);
-        viewHolder.imageView.setImageBitmap(null);
+        viewHolder.trackName.setText(level.getName());
 
         //Load image
-        if (trackImgPath != null) {
-            Glide.with(viewHolder.view.getContext()).load(trackImgPath).into(viewHolder.imageView);
+        if (level.getImagePath() != null) {
+            File image = new File(level.getImagePath());
+            if (image.isFile() && image.canRead()) {
+                Glide.with(viewHolder.view.getContext()).load(level.getImagePath()).into(viewHolder.imageView);
+            } else {
+                Glide.with(viewHolder.view.getContext()).load(Constants.LEVEL_PLACEHOLDER_IMAGE).into(viewHolder.imageView);
+            }
         }
 
 

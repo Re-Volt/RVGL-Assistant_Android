@@ -41,7 +41,7 @@ public class FindCars {
 
         for (File file : files) {
             //TODO: Make this runs on another thread
-            CarItem carBase = (CarItem) ItemParser.parse(file.getName(), Constants.RVGL_PATH + File.separator + ItemType.CAR.getTypePath());
+            CarItem carBase = (CarItem) ItemParser.parse(file.getName(), Constants.RVGL_PATH, ItemType.CAR.getTypePath());
             if (carBase != null){
                 CarViewItem carView = new CarViewItem(carBase);
                 itemAdapter.add(carView);

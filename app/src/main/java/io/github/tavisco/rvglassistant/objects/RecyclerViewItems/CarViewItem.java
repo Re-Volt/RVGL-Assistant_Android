@@ -60,9 +60,6 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
     public void bindView(CarViewItem.ViewHolder viewHolder, List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        //get the context
-        Context ctx = viewHolder.itemView.getContext();
-
         viewHolder.trackName.setText(car.getName());
         //viewHolder.trackDescription.setText(carDiscription);
         viewHolder.imageView.setImageBitmap(null);

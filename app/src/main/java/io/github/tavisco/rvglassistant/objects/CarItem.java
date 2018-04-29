@@ -17,7 +17,8 @@ public class CarItem extends BaseItem {
     }
 
     @Override
-    public String getImagePath() {
-        return super.getItemPath() + File.separator + "carbox.bmp";
+    public String getImagePath()
+    {
+        return super.getFullPath() + File.separator + "carbox.bmp";
     }
 }

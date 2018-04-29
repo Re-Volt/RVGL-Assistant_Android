@@ -20,28 +20,27 @@ import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.util.Arrays;
-import java.util.List;
 
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.TrackInfoActivity;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.TrackViewItem;
-import io.github.tavisco.rvglassistant.utils.FindTracks;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
+import io.github.tavisco.rvglassistant.utils.FindLevels;
 
 /**
  * A simple {@link Fragment} subclass.
- * Use the {@link TracksFragment#newInstance} factory method to
+ * Use the {@link LevelsFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class TracksFragment extends Fragment {
+public class LevelsFragment extends Fragment {
 
     //our rv
     RecyclerView mRecyclerView;
     //save our FastAdapter
-    private FastAdapter<TrackViewItem> mFastAdapter;
+    private FastAdapter<LevelViewItem> mFastAdapter;
     //save our FastAdapter
-    private ItemAdapter<TrackViewItem> mItemAdapter;
+    private ItemAdapter<LevelViewItem> mItemAdapter;
 
-    public TracksFragment() {
+    public LevelsFragment() {
         // Required empty public constructor
     }
 
@@ -49,11 +48,11 @@ public class TracksFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @return A new instance of fragment TracksFragment.
+     * @return A new instance of fragment LevelsFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static TracksFragment newInstance() {
-        TracksFragment fragment = new TracksFragment();
+    public static LevelsFragment newInstance() {
+        LevelsFragment fragment = new LevelsFragment();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -87,16 +86,12 @@ public class TracksFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        List<TrackViewItem> items = FindTracks.getAllTracks();
-
-        if (items != null){
-            mItemAdapter.add(items);
-        }
+        FindLevels.getAllLevels(mItemAdapter);
 
         //configure our fastAdapter
-        mFastAdapter.withOnClickListener(new OnClickListener<TrackViewItem>() {
+        mFastAdapter.withOnClickListener(new OnClickListener<LevelViewItem>() {
             @Override
-            public boolean onClick(View v, IAdapter<TrackViewItem> adapter, @NonNull TrackViewItem item, int position) {
+            public boolean onClick(View v, IAdapter<LevelViewItem> adapter, @NonNull LevelViewItem item, int position) {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
                 intent.putExtra("track", (new Gson()).toJson(item));
 

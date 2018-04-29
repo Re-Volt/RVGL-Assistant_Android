@@ -13,11 +13,12 @@ import android.widget.ImageView;
 
 import com.google.gson.Gson;
 
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.TrackViewItem;
+import io.github.tavisco.rvglassistant.objects.LevelItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
 
 public class TrackInfoActivity extends AppCompatActivity {
 
-    TrackViewItem track = null;
+    LevelItem track = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,17 +30,17 @@ public class TrackInfoActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String jsonTrack = intent.getStringExtra("track");
-        track = new Gson().fromJson(jsonTrack, TrackViewItem.class);
+        track = new Gson().fromJson(jsonTrack, LevelItem.class);
 
-        getSupportActionBar().setTitle(track.getTrackName());
+        getSupportActionBar().setTitle(track.getName());
 
         final ImageView imageView = findViewById(R.id.backdrop);
 
         //Load image
-        if (track.getTrackImgPath() != null){
+        if (track.getImagePath() != null){
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(track.getTrackImgPath(), options);
+            Bitmap bitmap = BitmapFactory.decodeFile(track.getImagePath(), options);
             imageView.setImageBitmap(bitmap);
         }
 

@@ -1,17 +1,15 @@
 package io.github.tavisco.rvglassistant;
 
-import android.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import io.github.tavisco.rvglassistant.fragments.CarsFragment;
 import io.github.tavisco.rvglassistant.fragments.MainFragment;
-import io.github.tavisco.rvglassistant.fragments.TracksFragment;
+import io.github.tavisco.rvglassistant.fragments.LevelsFragment;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -52,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                 frag = MainFragment.newInstance();
                 break;
             case R.id.navigation_tracks:
-                frag = TracksFragment.newInstance();
+                frag = LevelsFragment.newInstance();
                 break;
             case R.id.navigation_cars:
                 frag = CarsFragment.newInstance();

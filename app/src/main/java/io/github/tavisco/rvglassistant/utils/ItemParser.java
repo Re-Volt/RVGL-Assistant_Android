@@ -22,11 +22,11 @@ import io.github.tavisco.rvglassistant.objects.LevelItem;
  */
 public class ItemParser {
 
-    public static BaseItem parse(String folderName, String basePath){
+    public static BaseItem parse(String folderName, String basePath, String typePath){
         BaseItem item = null;
-        String itemPath = basePath + File.separator + folderName;
+        String itemPath = basePath + File.separator + File.separator + typePath + File.separator
+                + folderName;
         ItemType itemType = ItemTypeDeterminer.determine(itemPath);
-        //boolean isGettingInstalled = itemPath.equals(Constants.RVGL_ASSIST_UNZIP_PATH);
 
         if (itemType == ItemType.CAR){
             item = new CarItem();
@@ -36,19 +36,22 @@ public class ItemParser {
             return null;
         }
 
-        item.setItemPath(itemPath);
+        item.setType(itemType);
+        item.setBasePath(basePath);
+        item.setItemPath(folderName);
         String parameterFile = "";
 
         if (itemType == ItemType.CAR){
             parameterFile = Constants.CAR_PARAMETER_FILE_NAME;
         } else if (itemType == ItemType.LEVEL) {
-            parameterFile = folderName + ".txt";
+            parameterFile = folderName + ".inf";
         }
 
         File infoFile = new File(itemPath + File.separator + parameterFile);
 
         if (!infoFile.isFile() || !infoFile.canRead()) {
-            Log.d(Constants.TAG, "Error reading parameter file for " + folderName);
+            Log.d(Constants.TAG, "PARSER: Error reading parameter file for " + folderName
+                    + ". Path:\n" + itemPath + File.separator + parameterFile);
             return null;
         }
 
@@ -82,10 +85,10 @@ public class ItemParser {
         }
 
         //Now I use REGEX to extract the name of the item
-        Pattern p = Pattern.compile("\"(.*?)\"");
+        Pattern p = Pattern.compile(itemType.getTypeRegex());
         Matcher m = p.matcher(wholeParamLine);
         if (m.find()) {
-            item.setName(m.group(0).replace("\"", ""));
+            item.setName(m.group(0).replace(itemType.getTypeReplacer(), ""));
         }
 
         return item;

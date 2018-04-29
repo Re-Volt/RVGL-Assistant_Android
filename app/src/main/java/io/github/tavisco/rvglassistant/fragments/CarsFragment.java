@@ -82,12 +82,6 @@ public class CarsFragment extends Fragment {
         mRecyclerView.setAdapter(mFastAdapter);
 
         FindCars.getAllCars(mItemAdapter);
-
-        //List<CarViewItem> items = FindCars.getAllCars();
-        //
-        //if (items != null){
-        //    mItemAdapter.add(items);
-        //}
     }
 
 }

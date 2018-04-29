@@ -267,14 +267,14 @@ public class InstallActivity extends AppCompatActivity {
                     }
                 }
 
-                BaseItem item = ItemParser.parse(levelFolderName, destinationFolder);
-                    //TrackViewItem track = FindTracks.populateItem(levelFolderName, true);
+                /*BaseItem item = ItemParser.parse(levelFolderName, destinationFolder);
+                    //LevelViewItem track = FindLevels.populateItem(levelFolderName, true);
 
                 if (item.getImagePath() != null)
                     Glide.with(InstallActivity.this).load(item.getImagePath()).into(imgInstall);
 
                 tvType.setText("Type: " + item.getType().getTypeText());
-                tvName.setText("Name: " + item.getName());
+                tvName.setText("Name: " + item.getName());*/
 
                 dialog.dismiss();
             }
