@@ -93,7 +93,7 @@ public class LevelsFragment extends Fragment {
             @Override
             public boolean onClick(View v, IAdapter<LevelViewItem> adapter, @NonNull LevelViewItem item, int position) {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
-                intent.putExtra("track", (new Gson()).toJson(item));
+                intent.putExtra("levelViewItem", (new Gson()).toJson(item));
 
                 String transitionName = "transi_track_img";
 
