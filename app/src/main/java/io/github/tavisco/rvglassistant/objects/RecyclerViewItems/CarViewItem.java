@@ -33,6 +33,9 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
 
     private CarItem car;
 
+    public CarItem getCar() {
+        return car;
+    }
 
     /**
      * defines the type defining this item. must be unique. preferably an id

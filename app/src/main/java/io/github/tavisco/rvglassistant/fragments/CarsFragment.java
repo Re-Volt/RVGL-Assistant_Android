@@ -1,7 +1,10 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -10,13 +13,18 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
+import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.util.Arrays;
 
+import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
 import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**
@@ -82,6 +90,22 @@ public class CarsFragment extends Fragment {
         mRecyclerView.setAdapter(mFastAdapter);
 
         FindCars.getAllCars(mItemAdapter);
+
+        //configure our fastAdapter
+        mFastAdapter.withOnClickListener(new OnClickListener<CarViewItem>() {
+            @Override
+            public boolean onClick(View v, IAdapter<CarViewItem> adapter, @NonNull CarViewItem item, int position) {
+                Intent intent = new Intent(getActivity(), CarInfoActivity.class);
+                intent.putExtra("carViewItem", (new Gson()).toJson(item));
+
+                String transitionName = "transi_car_img";
+
+                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
+                startActivity(intent, transitionActivityOptions.toBundle());
+
+                return false;
+            }
+        });
     }
 
 }

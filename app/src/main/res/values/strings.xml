@@ -97,4 +97,5 @@
         "when a user tries to pick up one of cards.\n\n"
     </string>
     <string name="title_activity_install">Install Custom Content</string>
+    <string name="title_activity_car_info">Car Info</string>
 </resources>
