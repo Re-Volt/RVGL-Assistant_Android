@@ -142,10 +142,8 @@ public class MainFragment extends Fragment {
     public String getLocalGameVersion(){
         boolean checkFailed = false;
         String localVersion = "-1";
-        String basePath = Environment.getExternalStorageDirectory().toString() + File.separator +
-                "RVGL" + File.separator;
 
-        File versionFile = new File(basePath + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
+        File versionFile = new File(Constants.RVGL_PATH + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
 
         if (!versionFile.isFile() || !versionFile.canRead()) {
             checkFailed = true;
@@ -179,16 +177,16 @@ public class MainFragment extends Fragment {
 
         }
 
-        if(!checkFailed)
+        Activity activity = getActivity();
+        if(!checkFailed && activity != null)
             tvInstalledVersion.setText("Installed version:\n" + localVersion);
 
         return localVersion;
     }
 
     public void compareWithLocalVersion(String localVersion, String lastVersion){
-
         Activity activity = getActivity();
-        if(activity != null){
+        if (activity != null){
             if (localVersion.equals("-1") || lastVersion.equals("-1")){
                 tvUpdateStatus.setText("Oops! Couldn't get the last version");
                 tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
