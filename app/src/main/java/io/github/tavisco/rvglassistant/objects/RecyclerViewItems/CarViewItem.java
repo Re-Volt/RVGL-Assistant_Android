@@ -78,6 +78,8 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
             } else {
                 Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
             }
+        } else {
+            Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
         }
     }
 
