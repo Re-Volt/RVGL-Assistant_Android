@@ -11,14 +11,19 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
+import java.io.File;
+
+import io.github.tavisco.rvglassistant.objects.Constants;
 import io.github.tavisco.rvglassistant.objects.LevelItem;
 import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
 
 public class TrackInfoActivity extends AppCompatActivity {
 
-    LevelItem track = null;
+    LevelViewItem levelView = null;
+    LevelItem level = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,31 +34,22 @@ public class TrackInfoActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = getIntent();
-        String jsonTrack = intent.getStringExtra("track");
-        track = new Gson().fromJson(jsonTrack, LevelItem.class);
+        String jsonTrack = intent.getStringExtra("levelViewItem");
+        levelView = new Gson().fromJson(jsonTrack, LevelViewItem.class);
+        level = levelView.getLevel();
 
-        getSupportActionBar().setTitle(track.getName());
+        getSupportActionBar().setTitle(level.getName());
 
-        final ImageView imageView = findViewById(R.id.backdrop);
+        final ImageView imgBackdrop = findViewById(R.id.backdrop);
 
         //Load image
-        if (track.getImagePath() != null){
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(track.getImagePath(), options);
-            imageView.setImageBitmap(bitmap);
-        }
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+        if (level.getImagePath() != null) {
+            File image = new File(level.getImagePath());
+            if (image.isFile() && image.canRead()) {
+                Glide.with(this).load(level.getImagePath()).into(imgBackdrop);
+            } else {
+                Glide.with(this).load(Constants.LEVEL_PLACEHOLDER_IMAGE).into(imgBackdrop);
             }
-        });
-
-
-
+        }
     }
 }

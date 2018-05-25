@@ -1,5 +1,6 @@
 package io.github.tavisco.rvglassistant.fragments;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
@@ -107,41 +108,42 @@ public class MainFragment extends Fragment {
     public void checkForUpdates(){
         final String localVersion = getLocalGameVersion();
 
+        Activity activity = getActivity();
+        if(activity != null){
+            cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
+            tvUpdateStatus.setText("Checking for updates...");
+            tvLastVersion.setText("Last version:\nFetching...");
+            imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
 
-        cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
-        tvUpdateStatus.setText("Checking for updates...");
-        tvLastVersion.setText("Last version:\nFetching...");
-        imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(this.getContext());
 
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            // Need to substring the version to not get garbage
+                            compareWithLocalVersion(localVersion ,response.substring(0, 7));
+                        }
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(Constants.TAG, error.getLocalizedMessage());
+                }
+            });
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        // Need to substring the version to not get garbage
-                        compareWithLocalVersion(localVersion ,response.substring(0, 7));
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(Constants.TAG, error.getLocalizedMessage());
-            }
-        });
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
     }
 
     public String getLocalGameVersion(){
         boolean checkFailed = false;
         String localVersion = "-1";
-        String basePath = Environment.getExternalStorageDirectory().toString() + File.separator +
-                "RVGL" + File.separator;
 
-        File versionFile = new File(basePath + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
+        File versionFile = new File(Constants.RVGL_PATH + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
 
         if (!versionFile.isFile() || !versionFile.canRead()) {
             checkFailed = true;
@@ -175,35 +177,35 @@ public class MainFragment extends Fragment {
 
         }
 
-        if(!checkFailed)
+        Activity activity = getActivity();
+        if(!checkFailed && activity != null)
             tvInstalledVersion.setText("Installed version:\n" + localVersion);
 
         return localVersion;
     }
 
     public void compareWithLocalVersion(String localVersion, String lastVersion){
-
-
-        if (localVersion.equals("-1") || lastVersion.equals("-1")){
-            tvUpdateStatus.setText("Oops! Couldn't get the last version");
-            tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
-            tvLastVersion.setText("Last version:\nCouldn't get the last version");
-        } else {
-            tvLastVersion.setText("Last version:\n" + lastVersion);
-
-            if (localVersion.equals(lastVersion)){
-                cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
-                tvUpdateStatus.setText("Running the last version!");
-                imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
+        Activity activity = getActivity();
+        if (activity != null){
+            if (localVersion.equals("-1") || lastVersion.equals("-1")){
+                tvUpdateStatus.setText("Oops! Couldn't get the last version");
+                tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
+                tvLastVersion.setText("Last version:\nCouldn't get the last version");
             } else {
-                cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
-                tvUpdateStatus.setText("Version " + lastVersion + " is avaiable to download!\nClick here for more info.");
-                imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
-                updateAvaiable = true;
+                tvLastVersion.setText("Last version:\n" + lastVersion);
+
+                if (localVersion.equals(lastVersion)){
+                    cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
+                    tvUpdateStatus.setText("Running the last version!");
+                    imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
+                } else {
+                    cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
+                    tvUpdateStatus.setText("Version " + lastVersion + " is avaiable to download!\nClick here for more info.");
+                    imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
+                    updateAvaiable = true;
+                }
             }
         }
-
-
     }
 
     @OnClick(R.id.card_main_updateStatus)

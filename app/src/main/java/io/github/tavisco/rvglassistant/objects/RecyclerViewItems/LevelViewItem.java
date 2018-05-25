@@ -27,6 +27,10 @@ public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.Vie
 
     private LevelItem level;
 
+    public LevelItem getLevel() {
+        return level;
+    }
+
     public LevelViewItem(LevelItem lvl) {
         level = lvl;
     }
