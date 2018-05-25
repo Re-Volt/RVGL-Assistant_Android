@@ -19,6 +19,11 @@ public class CarItem extends BaseItem {
     @Override
     public String getImagePath()
     {
-        return super.getFullPath() + File.separator + "carbox.bmp";
+        File image = new File(super.getFullPath() + File.separator + "carbox.bmp");
+        if (image.exists()){
+            return image.getPath();
+        } else {
+            return null;
+        }
     }
 }

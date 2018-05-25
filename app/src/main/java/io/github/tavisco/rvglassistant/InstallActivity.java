@@ -256,23 +256,36 @@ public class InstallActivity extends AppCompatActivity {
             } else {
                 dialog.setContent("Filling screen");
 
-                //if (assetType == Constants.ITEM_TYPE_LEVEL){
-                File directory = new File(destinationFolder + File.separator + assetType.getTypePath());
-                /*File[] files = directory.listFiles();
+                // Add the '/cars' or '/levels' to the path
+                File directory = new File(Constants.RVGL_ASSIST_UNZIP_PATH + File.separator + assetType.getTypePath());
 
-                String levelFolderName = "";
+                // Now we need to determine the folder of the asset
+                File[] files = directory.listFiles();
+                File assetFolder = null;
 
                 for (File file : files) {
                     if (file.isDirectory()) {
-                        levelFolderName = file.getName();
+                        assetFolder = file;
                     }
-                }*/
+                }
 
-                BaseItem item = ItemParser.parse(null, destinationFolder, assetType.getTypePath());
-                    //LevelViewItem track = FindLevels.populateItem(levelFolderName, true);
+                // now our variables are like this:
+                // assetFolder = "/storage/emulated/0/RVGLAssist/unzipped/cars/drift_sakurabosozoku"
+                // destinationFolder = "/storage/emulated/0/RVGLAssist/unzipped"
 
-                if (item.getImagePath() != null)
-                    Glide.with(InstallActivity.this).load(item.getImagePath()).into(imgInstall);
+                BaseItem item = ItemParser.parse(assetFolder, Constants.RVGL_ASSIST_UNZIP_PATH, assetType);
+
+                //Load image
+                if (item.getImagePath() != null) {
+                    File image = new File(item.getImagePath());
+                    if (image.isFile() && image.canRead()) {
+                        Glide.with(InstallActivity.this).load(item.getImagePath()).into(imgInstall);
+                    } else {
+                        Glide.with(InstallActivity.this).load(R.drawable.unknown_carbox).into(imgInstall);
+                    }
+                } else {
+                    Glide.with(InstallActivity.this).load(R.drawable.unknown_carbox).into(imgInstall);
+                }
 
                 tvType.setText("Type: " + item.getType().getTypeText());
                 tvName.setText("Name: " + item.getName());
@@ -280,8 +293,8 @@ public class InstallActivity extends AppCompatActivity {
                 dialog.dismiss();
 
                 //Now we cleanup our files
-                if (directory.exists())
-                    deleteRecursive(directory);
+                //if (directory.exists())
+                //    deleteRecursive(directory);
             }
         }
 

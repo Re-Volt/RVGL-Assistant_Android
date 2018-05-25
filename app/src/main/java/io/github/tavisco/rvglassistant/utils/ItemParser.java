@@ -22,11 +22,10 @@ import io.github.tavisco.rvglassistant.objects.LevelItem;
  */
 public class ItemParser {
 
-    public static BaseItem parse(String folderName, String basePath, String typePath){
+    public static BaseItem parse(File itemFile, String basePath, ItemType itemType){
         BaseItem item = null;
-        String itemPath = basePath + File.separator + File.separator + typePath + File.separator
-                + folderName;
-        ItemType itemType = ItemTypeDeterminer.determine(itemPath);
+        String itemPath = itemFile.getPath();
+        String folderName = itemPath.substring(itemPath.lastIndexOf("/"));
 
         if (itemType == ItemType.CAR){
             item = new CarItem();

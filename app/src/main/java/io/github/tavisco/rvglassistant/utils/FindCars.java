@@ -26,9 +26,12 @@ public class FindCars {
             //The app have storage permissions?
         }
 
-        for (File file : files) {
+        for (File carFile : files) {
             //TODO: Make this runs on another thread
-            CarItem carBase = (CarItem) ItemParser.parse(file.getName(), Constants.RVGL_PATH, ItemType.CAR.getTypePath());
+            //carFile = "/storage/emulated/0/RVGL/cars/trolley"
+            //basePath = "/storage/emulated/0/RVGL"
+
+            CarItem carBase = (CarItem) ItemParser.parse(carFile, Constants.RVGL_PATH, ItemType.CAR);
             if (carBase != null){
                 CarViewItem carView = new CarViewItem(carBase);
                 itemAdapter.add(carView);

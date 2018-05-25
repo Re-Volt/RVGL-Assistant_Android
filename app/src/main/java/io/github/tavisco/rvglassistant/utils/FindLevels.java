@@ -38,7 +38,7 @@ public class FindLevels {
 
         List<LevelViewItem> list = new ArrayList<>();
 
-        String path = Constants.RVGL_PATH + File.separator + "levels";
+        String path = Constants.RVGL_PATH + File.separator + ItemType.LEVEL.getTypePath();
         File directory = new File(path);
         File[] files = directory.listFiles();
 
@@ -47,11 +47,11 @@ public class FindLevels {
         }
 
         boolean skip;
-        for (File file : files) {
+        for (File levelFile : files) {
             skip = false;
 
             for (String dontShow : dontShowTracks) {
-                if (dontShow.equals(file.getName()))
+                if (dontShow.equals(levelFile.getName()))
                     skip = true;
             }
 
@@ -59,7 +59,10 @@ public class FindLevels {
                 continue;
 
             //TODO: Make this runs on another thread
-            LevelItem levelBase = (LevelItem) ItemParser.parse(file.getName(), Constants.RVGL_PATH, ItemType.LEVEL.getTypePath());
+            //levelFile = "/storage/emulated/0/RVGL/levels/markar"
+            //basePath = "/storage/emulated/0/RVGL"
+
+            LevelItem levelBase = (LevelItem) ItemParser.parse(levelFile, Constants.RVGL_PATH, ItemType.LEVEL);
             if (levelBase != null){
                 LevelViewItem levelView = new LevelViewItem(levelBase);
                 itemAdapter.add(levelView);
