@@ -2,11 +2,18 @@ package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
@@ -27,10 +34,8 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
     String localVersion;
     String lastVersion;
 
-    public PackageItem(String name, String localVersion, String lastVersion) {
+    public PackageItem(String name) {
         this.name = name;
-        this.localVersion = localVersion;
-        this.lastVersion = lastVersion;
     }
 
     public String getName() {
@@ -43,6 +48,14 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
 
     public String getLastVersion() {
         return lastVersion;
+    }
+
+    public void setLocalVersion(String localVersion) {
+        this.localVersion = localVersion;
+    }
+
+    public void setLastVersion(String lastVersion) {
+        this.lastVersion = lastVersion;
     }
 
     /**
@@ -71,11 +84,35 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(@NonNull PackageItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
+    public void bindView(@NonNull final PackageItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
         super.bindView(viewHolder, payloads);
         viewHolder.tvPackageTitle.setText(getName());
-        viewHolder.tvPackageLastVersion.setText("Last: " + getLastVersion());
-        viewHolder.tvPackageLocalVersion.setText("Local: " + getLocalVersion());
+        viewHolder.tvPackageLastVersion.setText("Last: ?");
+        viewHolder.tvPackageLocalVersion.setText("Local: ?");
+
+        String rvioRequest = Constants.RVIO_ASSETS_LINK + getName() + ".txt";
+
+        // Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(viewHolder.itemView.getContext());
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, rvioRequest,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        if (!response.isEmpty()){
+                            viewHolder.tvPackageLastVersion.setText("Last: " + response.substring(0, 7));
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(Constants.TAG, error.getLocalizedMessage());
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
     }
 
     @Override
@@ -107,7 +144,6 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
             super(view);
             ButterKnife.bind(this, view);
             this.view = (FrameLayout) view;
-
 
         }
     }

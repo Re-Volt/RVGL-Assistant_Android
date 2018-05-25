@@ -140,8 +140,7 @@ public class MainFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 1));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        //FindCars.getAllCars(mItemAdapter);
-// Instantiate the RequestQueue.
+        // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this.getContext());
 
         // Request a string response from the provided URL.
@@ -149,11 +148,11 @@ public class MainFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        // Need to substring the version to not get garbage
-                        //compareWithLocalVersion(localVersion ,response.substring(0, 7));
-                        String rvioPackages[] = response.split("\\r?\\n");
-                        for (String rvioPack : rvioPackages) {
-                            mItemAdapter.add(new PackageItem(rvioPack, "?", "!"));
+                        if (!response.isEmpty()){
+                            String rvioPackages[] = response.split("\\r?\\n");
+                            for (String rvioPack : rvioPackages) {
+                                mItemAdapter.add(new PackageItem(rvioPack));
+                            }
                         }
                     }
                 }, new Response.ErrorListener() {
