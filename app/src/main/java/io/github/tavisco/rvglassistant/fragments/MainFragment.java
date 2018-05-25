@@ -1,14 +1,18 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 import android.app.Activity;
+import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,20 +26,30 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
+import com.mikepenz.fastadapter.FastAdapter;
+import com.mikepenz.fastadapter.IAdapter;
+import com.mikepenz.fastadapter.adapters.ItemAdapter;
+import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
+import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.PackageItem;
+import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,6 +72,14 @@ public class MainFragment extends Fragment {
     ImageView imgUpdateStatus;
 
     boolean updateAvaiable = false;
+
+    //our rv
+    @BindView(R.id.recycler_main_packages)
+    RecyclerView mRecyclerView;
+    //save our FastAdapter
+    private FastAdapter<PackageItem> mFastAdapter;
+    //save our FastAdapter
+    private ItemAdapter<PackageItem> mItemAdapter;
 
     public MainFragment() {
         // Required empty public constructor
@@ -103,6 +125,54 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         checkForUpdates();
+
+        //create our ItemAdapter which will host our items
+        mItemAdapter = new ItemAdapter<>();
+
+        //create our FastAdapter which will manage everything
+        mFastAdapter = FastAdapter.with(Arrays.asList(mItemAdapter));
+        mFastAdapter.withSelectable(true);
+        mFastAdapter.withMultiSelect(true);
+        mFastAdapter.withSelectOnLongClick(false);
+
+        //configure our fastAdapter
+        //get our recyclerView and do basic setup
+        mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 1));
+        mRecyclerView.setAdapter(mFastAdapter);
+
+        //FindCars.getAllCars(mItemAdapter);
+// Instantiate the RequestQueue.
+        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVIO_AVAIABLE_PACKAGES_LINK,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        // Need to substring the version to not get garbage
+                        //compareWithLocalVersion(localVersion ,response.substring(0, 7));
+                        String rvioPackages[] = response.split("\\r?\\n");
+                        for (String rvioPack : rvioPackages) {
+                            mItemAdapter.add(new PackageItem(rvioPack, "?", "!"));
+                        }
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d(Constants.TAG, error.getLocalizedMessage());
+            }
+        });
+
+        // Add the request to the RequestQueue.
+        queue.add(stringRequest);
+        //configure our fastAdapter
+        mFastAdapter.withOnClickListener(new OnClickListener<PackageItem>() {
+            @Override
+            public boolean onClick(View v, IAdapter<PackageItem> adapter, @NonNull PackageItem item, int position) {
+
+                return false;
+            }
+        });
     }
 
     public void checkForUpdates(){

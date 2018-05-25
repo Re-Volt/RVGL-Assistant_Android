@@ -11,12 +11,4 @@
         android:clipToPadding="false"
         android:padding="8dp" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabCars"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:src="@drawable/ic_add_white_24dp" />
-
 </FrameLayout>

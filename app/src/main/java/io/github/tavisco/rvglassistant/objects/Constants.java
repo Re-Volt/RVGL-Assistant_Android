@@ -18,6 +18,8 @@ public class Constants {
     //Links
     public static final String RVGL_LAST_VERSION_LINK = "https://distribute.re-volt.io/releases/rvgl_version.txt";
     public static final String RVGL_ANDROID_APK_LINK = "https://forum.re-volt.io/viewtopic.php?f=8&t=76";
+    public static final String RVIO_AVAIABLE_PACKAGES_LINK = "http://distribute.re-volt.io/packages.txt";
+    public static final String RVIO_ASSETS_LINK = "https://distribute.re-volt.io/assets/";
 
     //Files
     public static final String RVGL_CURRENT_VERSION_TXT = "rvgl_version.txt";
