@@ -1,22 +1,9 @@
 package io.github.tavisco.rvglassistant.utils;
 
-import android.os.Environment;
-import android.util.Log;
-
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
-import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
 import io.github.tavisco.rvglassistant.objects.Constants;
 import io.github.tavisco.rvglassistant.objects.ItemType;

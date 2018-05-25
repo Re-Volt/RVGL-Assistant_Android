@@ -34,8 +34,8 @@ import java.util.zip.ZipInputStream;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.github.tavisco.rvglassistant.objects.ItemType;
 import io.github.tavisco.rvglassistant.objects.BaseItem;
+import io.github.tavisco.rvglassistant.objects.ItemType;
 import io.github.tavisco.rvglassistant.objects.Constants;
 import io.github.tavisco.rvglassistant.utils.ItemParser;
 import io.github.tavisco.rvglassistant.utils.ItemTypeDeterminer;
@@ -90,7 +90,7 @@ public class InstallActivity extends AppCompatActivity {
 
         if (!alreadyCreated){
             alreadyCreated = true;
-            //The "false" here is to tell the task to not install
+            //The "false" here is to tell the task to not installing
             //the files to the game, just to unzip them
             unzip.execute(false);
         }
@@ -101,7 +101,7 @@ public class InstallActivity extends AppCompatActivity {
         private MaterialDialog dialog;
         private Context mContext;
         String destinationFolder;
-        boolean install;
+        boolean installing;
 
         public AsyncUnzipFile(Context context){
             mContext = context;
@@ -118,13 +118,15 @@ public class InstallActivity extends AppCompatActivity {
 
         @Override
         protected String doInBackground(Boolean... booleans) {
-            install = booleans[0];
+            installing = booleans[0];
 
-            if (install){
+            if (installing){
                 destinationFolder = Constants.RVGL_PATH;
             } else {
                 destinationFolder = Constants.RVGL_ASSIST_UNZIP_PATH;
             }
+
+            File folder = new File(destinationFolder);
 
             String action = pIntent.getAction();
 
@@ -139,9 +141,8 @@ public class InstallActivity extends AppCompatActivity {
 
                     InputStream input = null;
                     try {
-                        File folder = new File(destinationFolder);
 
-                        if (!install){
+                        if (!installing){
                             //We need to clean up files from
                             //previous installations
                             if (folder.exists())
@@ -242,9 +243,9 @@ public class InstallActivity extends AppCompatActivity {
             dialog.setTitle("Processing file");
             dialog.setContent("Detecting asset type");
 
-            ItemType assetType = ItemTypeDeterminer.determine(destinationFolder);
+            ItemType assetType = ItemTypeDeterminer.determineWhileInstalling(destinationFolder);
 
-            if (install){
+            if (installing){
                 dialog.dismiss();
 
                 new MaterialDialog.Builder(mContext)
@@ -257,7 +258,7 @@ public class InstallActivity extends AppCompatActivity {
 
                 //if (assetType == Constants.ITEM_TYPE_LEVEL){
                 File directory = new File(destinationFolder + File.separator + assetType.getTypePath());
-                File[] files = directory.listFiles();
+                /*File[] files = directory.listFiles();
 
                 String levelFolderName = "";
 
@@ -265,18 +266,22 @@ public class InstallActivity extends AppCompatActivity {
                     if (file.isDirectory()) {
                         levelFolderName = file.getName();
                     }
-                }
+                }*/
 
-                /*BaseItem item = ItemParser.parse(levelFolderName, destinationFolder);
+                BaseItem item = ItemParser.parse(null, destinationFolder, assetType.getTypePath());
                     //LevelViewItem track = FindLevels.populateItem(levelFolderName, true);
 
                 if (item.getImagePath() != null)
                     Glide.with(InstallActivity.this).load(item.getImagePath()).into(imgInstall);
 
                 tvType.setText("Type: " + item.getType().getTypeText());
-                tvName.setText("Name: " + item.getName());*/
+                tvName.setText("Name: " + item.getName());
 
                 dialog.dismiss();
+
+                //Now we cleanup our files
+                if (directory.exists())
+                    deleteRecursive(directory);
             }
         }
 

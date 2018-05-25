@@ -1,10 +1,6 @@
 package io.github.tavisco.rvglassistant.utils;
 
-import android.util.Log;
-
 import java.io.File;
-
-import io.github.tavisco.rvglassistant.objects.Constants;
 import io.github.tavisco.rvglassistant.objects.ItemType;
 
 /**
@@ -23,5 +19,23 @@ public class ItemTypeDeterminer {
             return type;
 
         return ItemType.UNKNOWN;
+    }
+
+    public static ItemType determineWhileInstalling(String folderPath){
+        File directory = new File(folderPath);
+
+        ItemType type = ItemType.UNKNOWN;
+
+        for (File fileInsideZip : directory.listFiles()) {
+            if (fileInsideZip.isDirectory()) {
+                if (fileInsideZip.getName().contains(ItemType.CAR.getTypePath())){
+                    type = ItemType.CAR;
+                } else if (fileInsideZip.getName().contains(ItemType.LEVEL.getTypePath())){
+                    type = ItemType.LEVEL;
+                }
+            }
+        }
+
+        return type;
     }
 }
