@@ -204,6 +204,11 @@ public class InstallActivity extends AppCompatActivity {
                                 if (zEntry.isDirectory()) {
                                     hanldeDirectory(zEntry.getName());
                                 } else {
+                                    File directory = new File(this.destinationFolder + "/" + zEntry.getName());
+                                    directory = new File(directory.getParent());
+                                    if (!directory.exists()){
+                                        directory.mkdirs();
+                                    }
                                     FileOutputStream fout = new FileOutputStream(
                                             this.destinationFolder + "/" + zEntry.getName());
                                     BufferedOutputStream bufout = new BufferedOutputStream(fout);
