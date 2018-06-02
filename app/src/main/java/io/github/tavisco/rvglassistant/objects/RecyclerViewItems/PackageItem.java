@@ -1,11 +1,14 @@
 package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
+import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -24,6 +27,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.utils.DownloadUtils;
 
 /**
  * Created by Tavisco on 25/05/18.
@@ -81,8 +85,20 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         return downloadOngoing;
     }
 
-    public void setDownloadOngoing(boolean downloadOngoing) {
+    public void setDownloadOngoing(boolean downloadOngoing, @NonNull final PackageItem.ViewHolder viewHolder) {
         this.downloadOngoing = downloadOngoing;
+        if (downloadOngoing){
+            viewHolder.lytPackageDownload.setVisibility(View.VISIBLE);
+        } else {
+            viewHolder.lytPackageDownload.setVisibility(View.GONE);
+        }
+    }
+
+    public void updateDownloadView(Context ctx, @NonNull final PackageItem.ViewHolder vh, long etaInMilliSeconds, long downloadedBytesPerSecond, int progress, String status){
+        vh.tvDownloadSpeed.setText(DownloadUtils.getDownloadSpeedString(ctx, downloadedBytesPerSecond));
+        vh.tvTimeRemaining.setText(DownloadUtils.getETAString(ctx, etaInMilliSeconds));
+        vh.barDownloadProgress.setProgress(progress);
+        vh.tvDownloadProgress.setText(String.valueOf(progress).concat("%"));
     }
 
     /**
@@ -172,6 +188,18 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         TextView tvPackageLocalVersion;
         @BindView(R.id.tv_package_last_version)
         TextView tvPackageLastVersion;
+        @BindView(R.id.lnLyt_package_download)
+        LinearLayout lytPackageDownload;
+        @BindView(R.id.tv_package_download_speed)
+                TextView tvDownloadSpeed;
+        @BindView(R.id.tv_package_download_status)
+                TextView tvDownloadStatus;
+        @BindView(R.id.tv_package_download_progress)
+                TextView tvDownloadProgress;
+        @BindView(R.id.tv_package_time_remaining)
+                TextView tvTimeRemaining;
+        @BindView(R.id.bar_package_progress)
+        ProgressBar barDownloadProgress;
 
         ViewHolder(View view) {
             super(view);

@@ -225,7 +225,7 @@ public class MainFragment extends Fragment {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(v.getContext());
 
             // notificationId is a unique int for each notification that you must define
-            notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
+            //notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
         } else {
             new MaterialDialog.Builder(v.getContext())
                     .title("Stop downloading ".concat(item.getName()).concat("?"))
@@ -242,23 +242,26 @@ public class MainFragment extends Fragment {
         }
     }
 
-    public void downloadPack(View v, final PackageItem item){
+    public void downloadPack(final View v, final PackageItem item){
         final com.tonyodev.fetch2.Request request = new com.tonyodev.fetch2.Request(item.getDownloadLink(), item.getDownloadSavePath());
         request.setPriority(Priority.HIGH);
         request.setNetworkType(NetworkType.WIFI_ONLY);
+
+        mainFetch.removeAll();
 
         mainFetch.enqueue(request, new Func<Download>() {
             @Override
             public void call(Download download) {
                 Log.d(Constants.TAG, "call: Started downloading");
                 item.setDownloadID(download.getId());
-                item.setDownloadOngoing(true);
+                item.setDownloadOngoing(true, item.getViewHolder(v));
                 //Request successfully Queued for download
             }
         }, new Func<Error>() {
             @Override
             public void call(Error error) {
                 //An error occurred when enqueuing a request.
+                Log.d(Constants.TAG, "ERRO STARTING DOWNLOAD.");
             }
         });
 
@@ -272,7 +275,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onCompleted(@NotNull Download download) {
                 mainFetch.removeListener(this);
-                item.setDownloadOngoing(false);
+                item.setDownloadOngoing(false, item.getViewHolder(v));
             }
 
             @Override
@@ -280,19 +283,17 @@ public class MainFragment extends Fragment {
                 final Error error = download.getError();
                 final Throwable throwable = error.getThrowable(); //can be null
                 if (error == Error.UNKNOWN && throwable != null) {
-                    Log.d("Fetch", "Throwable error", throwable);
+                    Log.d(Constants.TAG, "Throwable error", throwable);
                 }
                 mainFetch.removeListener(this);
-                item.setDownloadOngoing(false);
+                item.setDownloadOngoing(false, item.getViewHolder(v));
             }
 
             @Override
             public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
                 if (request.getId() == download.getId()) {
-                    //updateDownload(download, etaInMilliSeconds);
+                    item.updateDownloadView(v.getContext(), item.getViewHolder(v), etaInMilliSeconds, downloadedBytesPerSecond, download.getProgress(), download.getStatus().toString());
                 }
-                final int progress = download.getProgress();
-                Log.d("Fetch", "Progress Completed :" + progress);
             }
 
             @Override
@@ -308,6 +309,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onCancelled(@NotNull Download download) {
                 Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
+                item.setDownloadOngoing(false, item.getViewHolder(v));
             }
 
             @Override
