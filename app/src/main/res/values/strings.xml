@@ -100,4 +100,6 @@
     <string name="title_activity_car_info">Car Info</string>
     <string name="channel_name">RVGL Butler downloads</string>
     <string name="channel_description">Used to show info\'s about RVGL Butler downloads</string>
+    <string name="agree">Yes</string>
+    <string name="disagree">No</string>
 </resources>

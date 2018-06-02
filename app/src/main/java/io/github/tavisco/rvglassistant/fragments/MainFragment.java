@@ -20,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.DialogAction;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -197,88 +199,22 @@ public class MainFragment extends Fragment {
         });
     }
 
-    private void handlePackageClick(View v, final PackageItem item) {
-
+    private void handlePackageClick(final View v, final PackageItem item) {
         if (!item.isDownloadOngoing()){
-            final com.tonyodev.fetch2.Request request = new com.tonyodev.fetch2.Request(item.getDownloadLink(), item.getDownloadSavePath());
-            request.setPriority(Priority.HIGH);
-            request.setNetworkType(NetworkType.WIFI_ONLY);
 
-            mainFetch.enqueue(request, new Func<Download>() {
-                @Override
-                public void call(Download download) {
-                    Log.d(Constants.TAG, "call: Started downloading");
-                    item.setDownloadID(download.getId());
-                    item.setDownloadOngoing(true);
-                    //Request successfully Queued for download
-                }
-            }, new Func<Error>() {
-                @Override
-                public void call(Error error) {
-                    //An error occurred when enqueuing a request.
-                }
-            });
+            new MaterialDialog.Builder(v.getContext())
+                    .title("Download ".concat(item.getName()).concat("?"))
+                    .content("Do you wish to download ".concat(item.getName()).concat(" pack?"))
+                    .positiveText(R.string.agree)
+                    .negativeText(R.string.disagree)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(MaterialDialog dialog, DialogAction which) {
+                            downloadPack(v, item);
+                        }
+                    })
+                    .show();
 
-            final FetchListener fetchListener = new FetchListener() {
-
-                @Override
-                public void onQueued(Download download) {
-
-                }
-
-                @Override
-                public void onCompleted(@NotNull Download download) {
-                    mainFetch.removeListener(this);
-                    item.setDownloadOngoing(false);
-                }
-
-                @Override
-                public void onError(@NotNull Download download) {
-                    final Error error = download.getError();
-                    final Throwable throwable = error.getThrowable(); //can be null
-                    if (error == Error.UNKNOWN && throwable != null) {
-                        Log.d("Fetch", "Throwable error", throwable);
-                    }
-                    mainFetch.removeListener(this);
-                    item.setDownloadOngoing(false);
-                }
-
-                @Override
-                public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
-                    if (request.getId() == download.getId()) {
-                        //updateDownload(download, etaInMilliSeconds);
-                    }
-                    final int progress = download.getProgress();
-                    Log.d("Fetch", "Progress Completed :" + progress);
-                }
-
-                @Override
-                public void onPaused(@NotNull Download download) {
-
-                }
-
-                @Override
-                public void onResumed(@NotNull Download download) {
-
-                }
-
-                @Override
-                public void onCancelled(@NotNull Download download) {
-                    Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
-                }
-
-                @Override
-                public void onRemoved(@NotNull Download download) {
-
-                }
-
-                @Override
-                public void onDeleted(@NotNull Download download) {
-
-                }
-            };
-
-            mainFetch.addListener(fetchListener);
 
             NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(v.getContext(), Constants.NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_cloud_download)
@@ -291,8 +227,101 @@ public class MainFragment extends Fragment {
             // notificationId is a unique int for each notification that you must define
             notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
         } else {
-            mainFetch.cancel(item.getDownloadID());
+            new MaterialDialog.Builder(v.getContext())
+                    .title("Stop downloading ".concat(item.getName()).concat("?"))
+                    .content("Do you wish to stop downloading ".concat(item.getName()).concat("?"))
+                    .positiveText(R.string.agree)
+                    .negativeText(R.string.disagree)
+                    .onPositive(new MaterialDialog.SingleButtonCallback() {
+                        @Override
+                        public void onClick(MaterialDialog dialog, DialogAction which) {
+                            mainFetch.cancel(item.getDownloadID());
+                        }
+                    })
+                    .show();
         }
+    }
+
+    public void downloadPack(View v, final PackageItem item){
+        final com.tonyodev.fetch2.Request request = new com.tonyodev.fetch2.Request(item.getDownloadLink(), item.getDownloadSavePath());
+        request.setPriority(Priority.HIGH);
+        request.setNetworkType(NetworkType.WIFI_ONLY);
+
+        mainFetch.enqueue(request, new Func<Download>() {
+            @Override
+            public void call(Download download) {
+                Log.d(Constants.TAG, "call: Started downloading");
+                item.setDownloadID(download.getId());
+                item.setDownloadOngoing(true);
+                //Request successfully Queued for download
+            }
+        }, new Func<Error>() {
+            @Override
+            public void call(Error error) {
+                //An error occurred when enqueuing a request.
+            }
+        });
+
+        final FetchListener fetchListener = new FetchListener() {
+
+            @Override
+            public void onQueued(Download download) {
+
+            }
+
+            @Override
+            public void onCompleted(@NotNull Download download) {
+                mainFetch.removeListener(this);
+                item.setDownloadOngoing(false);
+            }
+
+            @Override
+            public void onError(@NotNull Download download) {
+                final Error error = download.getError();
+                final Throwable throwable = error.getThrowable(); //can be null
+                if (error == Error.UNKNOWN && throwable != null) {
+                    Log.d("Fetch", "Throwable error", throwable);
+                }
+                mainFetch.removeListener(this);
+                item.setDownloadOngoing(false);
+            }
+
+            @Override
+            public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
+                if (request.getId() == download.getId()) {
+                    //updateDownload(download, etaInMilliSeconds);
+                }
+                final int progress = download.getProgress();
+                Log.d("Fetch", "Progress Completed :" + progress);
+            }
+
+            @Override
+            public void onPaused(@NotNull Download download) {
+
+            }
+
+            @Override
+            public void onResumed(@NotNull Download download) {
+
+            }
+
+            @Override
+            public void onCancelled(@NotNull Download download) {
+                Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
+            }
+
+            @Override
+            public void onRemoved(@NotNull Download download) {
+
+            }
+
+            @Override
+            public void onDeleted(@NotNull Download download) {
+
+            }
+        };
+
+        mainFetch.addListener(fetchListener);
     }
 
     public void checkForUpdates(){
