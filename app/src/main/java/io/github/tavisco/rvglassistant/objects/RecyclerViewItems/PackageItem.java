@@ -33,6 +33,9 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
     String name;
     String localVersion;
     String lastVersion;
+    int downloadID;
+    boolean downloadOngoing;
+    boolean versionChecked = false;
 
     public PackageItem(String name) {
         this.name = name;
@@ -56,6 +59,30 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
 
     public void setLastVersion(String lastVersion) {
         this.lastVersion = lastVersion;
+    }
+
+    public String getDownloadLink(){
+        return Constants.RVIO_DOWNLOAD_PACKS_LINK.concat(getName()).concat(".zip");
+    }
+
+    public String getDownloadSavePath(){
+        return Constants.PATH_RVGL_BUTLER + File.separator + getName().concat(".zip");
+    }
+
+    public int getDownloadID() {
+        return downloadID;
+    }
+
+    public void setDownloadID(int downloadID) {
+        this.downloadID = downloadID;
+    }
+
+    public boolean isDownloadOngoing() {
+        return downloadOngoing;
+    }
+
+    public void setDownloadOngoing(boolean downloadOngoing) {
+        this.downloadOngoing = downloadOngoing;
     }
 
     /**
@@ -86,33 +113,39 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
     @Override
     public void bindView(@NonNull final PackageItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
         super.bindView(viewHolder, payloads);
-        viewHolder.tvPackageTitle.setText(getName());
-        viewHolder.tvPackageLastVersion.setText("Last: ?");
-        viewHolder.tvPackageLocalVersion.setText("Local: ?");
 
-        String rvioRequest = Constants.RVIO_ASSETS_LINK + getName() + ".txt";
+        if (!versionChecked){
+            viewHolder.tvPackageTitle.setText(getName());
+            viewHolder.tvPackageLocalVersion.setText("Local: Checking");
+            viewHolder.tvPackageLastVersion.setText("Last: Checking");
 
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(viewHolder.itemView.getContext());
+            // Ex. https://distribute.re-volt.io/assets/io_cars.txt
+            String rvioRequest = Constants.RVIO_ASSETS_LINK + getName() + ".txt";
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, rvioRequest,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (!response.isEmpty()){
-                            viewHolder.tvPackageLastVersion.setText("Last: " + response.substring(0, 7));
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(viewHolder.itemView.getContext());
+
+            // Request a string response from the rvioRequest URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, rvioRequest,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (!response.isEmpty()){
+                                viewHolder.tvPackageLastVersion.setText("Last: " + response.substring(0, 7));
+                                versionChecked = true;
+                            }
                         }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(Constants.TAG, error.getLocalizedMessage());
-            }
-        });
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(Constants.TAG, error.getLocalizedMessage());
+                }
+            });
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+
     }
 
     @Override

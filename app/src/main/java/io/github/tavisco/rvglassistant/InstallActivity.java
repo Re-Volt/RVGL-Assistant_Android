@@ -121,9 +121,9 @@ public class InstallActivity extends AppCompatActivity {
             installing = booleans[0];
 
             if (installing){
-                destinationFolder = Constants.RVGL_PATH;
+                destinationFolder = Constants.PATH_RVGL;
             } else {
-                destinationFolder = Constants.RVGL_ASSIST_UNZIP_PATH;
+                destinationFolder = Constants.PATH_RVGL_BUTLER_UNZIP;
             }
 
             File folder = new File(destinationFolder);
@@ -262,7 +262,7 @@ public class InstallActivity extends AppCompatActivity {
                 dialog.setContent("Filling screen");
 
                 // Add the '/cars' or '/levels' to the path
-                File directory = new File(Constants.RVGL_ASSIST_UNZIP_PATH + File.separator + assetType.getTypePath());
+                File directory = new File(Constants.PATH_RVGL_BUTLER_UNZIP + File.separator + assetType.getTypePath());
 
                 // Now we need to determine the folder of the asset
                 File[] files = directory.listFiles();
@@ -278,7 +278,7 @@ public class InstallActivity extends AppCompatActivity {
                 // assetFolder = "/storage/emulated/0/RVGLAssist/unzipped/cars/drift_sakurabosozoku"
                 // destinationFolder = "/storage/emulated/0/RVGLAssist/unzipped"
 
-                BaseItem item = ItemParser.parse(assetFolder, Constants.RVGL_ASSIST_UNZIP_PATH, assetType);
+                BaseItem item = ItemParser.parse(assetFolder, Constants.PATH_RVGL_BUTLER_UNZIP, assetType);
 
                 //Load image
                 if (item.getImagePath() != null) {

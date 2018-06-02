@@ -43,4 +43,5 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.6.1'
     implementation 'com.android.volley:volley:1.1.0'
     implementation 'com.github.AnyChart:AnyChart-Android:0.1.9'
+    implementation "com.tonyodev.fetch2:fetch2:2.0.0-RC22"
 }

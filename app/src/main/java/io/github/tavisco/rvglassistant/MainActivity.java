@@ -1,5 +1,8 @@
 package io.github.tavisco.rvglassistant;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -10,6 +13,7 @@ import android.view.MenuItem;
 import io.github.tavisco.rvglassistant.fragments.CarsFragment;
 import io.github.tavisco.rvglassistant.fragments.MainFragment;
 import io.github.tavisco.rvglassistant.fragments.LevelsFragment;
+import io.github.tavisco.rvglassistant.objects.Constants;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -85,6 +89,25 @@ public class MainActivity extends AppCompatActivity {
         android.support.v4.app.FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.container, frag, frag.getTag());
         ft.commit();
+
+        createNotificationChannel();
     }
+
+    private void createNotificationChannel() {
+        // Create the NotificationChannel, but only on API 26+ because
+        // the NotificationChannel class is new and not in the support library
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = getString(R.string.channel_name);
+            String description = getString(R.string.channel_description);
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(Constants.NOTIFICATION_CHANNEL_ID, name, importance);
+            channel.setDescription(description);
+            // Register the channel with the system; you can't change the importance
+            // or other notification behaviors after this
+            NotificationManager notificationManager = getSystemService(NotificationManager.class);
+            notificationManager.createNotificationChannel(channel);
+        }
+    }
+
 
 }

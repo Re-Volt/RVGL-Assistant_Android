@@ -1,21 +1,10 @@
 package io.github.tavisco.rvglassistant.utils;
 
-import android.os.Environment;
-import android.util.Log;
-
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import io.github.tavisco.rvglassistant.objects.Constants;
 import io.github.tavisco.rvglassistant.objects.ItemType;
@@ -38,7 +27,7 @@ public class FindLevels {
 
         List<LevelViewItem> list = new ArrayList<>();
 
-        String path = Constants.RVGL_PATH + File.separator + ItemType.LEVEL.getTypePath();
+        String path = Constants.PATH_RVGL + File.separator + ItemType.LEVEL.getTypePath();
         File directory = new File(path);
         File[] files = directory.listFiles();
 
@@ -62,7 +51,7 @@ public class FindLevels {
             //levelFile = "/storage/emulated/0/RVGL/levels/markar"
             //basePath = "/storage/emulated/0/RVGL"
 
-            LevelItem levelBase = (LevelItem) ItemParser.parse(levelFile, Constants.RVGL_PATH, ItemType.LEVEL);
+            LevelItem levelBase = (LevelItem) ItemParser.parse(levelFile, Constants.PATH_RVGL, ItemType.LEVEL);
             if (levelBase != null){
                 LevelViewItem levelView = new LevelViewItem(levelBase);
                 itemAdapter.add(levelView);

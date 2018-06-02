@@ -1,15 +1,15 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 import android.app.Activity;
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -26,30 +26,38 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
 import com.mikepenz.fastadapter.listeners.OnClickListener;
+import com.tonyodev.fetch2.Download;
+import com.tonyodev.fetch2.Error;
+import com.tonyodev.fetch2.Fetch;
+import com.tonyodev.fetch2.FetchListener;
+import com.tonyodev.fetch2.Func;
+import com.tonyodev.fetch2.NetworkType;
+import com.tonyodev.fetch2.Priority;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
 import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.PackageItem;
-import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -60,6 +68,7 @@ import io.github.tavisco.rvglassistant.utils.FindCars;
  */
 public class MainFragment extends Fragment {
 
+    // =-=-=-= Bindings =-=-=-=
     @BindView(R.id.card_main_updateStatus)
     CardView cardUpdate;
     @BindView(R.id.tv_main_installedVersion)
@@ -70,16 +79,20 @@ public class MainFragment extends Fragment {
     TextView tvUpdateStatus;
     @BindView(R.id.img_main_updateStatus)
     ImageView imgUpdateStatus;
-
-    boolean updateAvaiable = false;
-
-    //our rv
     @BindView(R.id.recycler_main_packages)
     RecyclerView mRecyclerView;
-    //save our FastAdapter
+
+
+    // =-=-=-= Recycler =-=-=-=
     private FastAdapter<PackageItem> mFastAdapter;
-    //save our FastAdapter
     private ItemAdapter<PackageItem> mItemAdapter;
+
+
+    // =-=-=-= Items/Variables =-=-=-=
+    boolean updateAvaiable = false;
+    private Fetch mainFetch;
+
+
 
     public MainFragment() {
         // Required empty public constructor
@@ -125,7 +138,16 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         checkForUpdates();
+        createPackagesList();
 
+        mainFetch = new Fetch.Builder(this.getContext(), "Main")
+                .setDownloadConcurrentLimit(1) // Allows Fetch to download 1 file at moment.
+                .enableLogging(true)
+                .build();
+
+    }
+
+    private void createPackagesList() {
         //create our ItemAdapter which will host our items
         mItemAdapter = new ItemAdapter<>();
 
@@ -149,6 +171,7 @@ public class MainFragment extends Fragment {
                     @Override
                     public void onResponse(String response) {
                         if (!response.isEmpty()){
+                            // Split on new lines
                             String rvioPackages[] = response.split("\\r?\\n");
                             for (String rvioPack : rvioPackages) {
                                 mItemAdapter.add(new PackageItem(rvioPack));
@@ -168,10 +191,108 @@ public class MainFragment extends Fragment {
         mFastAdapter.withOnClickListener(new OnClickListener<PackageItem>() {
             @Override
             public boolean onClick(View v, IAdapter<PackageItem> adapter, @NonNull PackageItem item, int position) {
-
+                handlePackageClick(v, item);
                 return false;
             }
         });
+    }
+
+    private void handlePackageClick(View v, final PackageItem item) {
+
+        if (!item.isDownloadOngoing()){
+            final com.tonyodev.fetch2.Request request = new com.tonyodev.fetch2.Request(item.getDownloadLink(), item.getDownloadSavePath());
+            request.setPriority(Priority.HIGH);
+            request.setNetworkType(NetworkType.WIFI_ONLY);
+
+            mainFetch.enqueue(request, new Func<Download>() {
+                @Override
+                public void call(Download download) {
+                    Log.d(Constants.TAG, "call: Started downloading");
+                    item.setDownloadID(download.getId());
+                    item.setDownloadOngoing(true);
+                    //Request successfully Queued for download
+                }
+            }, new Func<Error>() {
+                @Override
+                public void call(Error error) {
+                    //An error occurred when enqueuing a request.
+                }
+            });
+
+            final FetchListener fetchListener = new FetchListener() {
+
+                @Override
+                public void onQueued(Download download) {
+
+                }
+
+                @Override
+                public void onCompleted(@NotNull Download download) {
+                    mainFetch.removeListener(this);
+                    item.setDownloadOngoing(false);
+                }
+
+                @Override
+                public void onError(@NotNull Download download) {
+                    final Error error = download.getError();
+                    final Throwable throwable = error.getThrowable(); //can be null
+                    if (error == Error.UNKNOWN && throwable != null) {
+                        Log.d("Fetch", "Throwable error", throwable);
+                    }
+                    mainFetch.removeListener(this);
+                    item.setDownloadOngoing(false);
+                }
+
+                @Override
+                public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
+                    if (request.getId() == download.getId()) {
+                        //updateDownload(download, etaInMilliSeconds);
+                    }
+                    final int progress = download.getProgress();
+                    Log.d("Fetch", "Progress Completed :" + progress);
+                }
+
+                @Override
+                public void onPaused(@NotNull Download download) {
+
+                }
+
+                @Override
+                public void onResumed(@NotNull Download download) {
+
+                }
+
+                @Override
+                public void onCancelled(@NotNull Download download) {
+                    Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
+                }
+
+                @Override
+                public void onRemoved(@NotNull Download download) {
+
+                }
+
+                @Override
+                public void onDeleted(@NotNull Download download) {
+
+                }
+            };
+
+            mainFetch.addListener(fetchListener);
+
+            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(v.getContext(), Constants.NOTIFICATION_CHANNEL_ID)
+                    .setSmallIcon(R.drawable.ic_cloud_download)
+                    .setContentTitle("Downloading " + item.getName() + " from RV I/O")
+                    .setContentText("Essa foi a primeira notificalçao evar que já fiz no android!")
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(v.getContext());
+
+            // notificationId is a unique int for each notification that you must define
+            notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
+        } else {
+            mainFetch.cancel(item.getDownloadID());
+        }
     }
 
     public void checkForUpdates(){
@@ -212,7 +333,7 @@ public class MainFragment extends Fragment {
         boolean checkFailed = false;
         String localVersion = "-1";
 
-        File versionFile = new File(Constants.RVGL_PATH + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
+        File versionFile = new File(Constants.PATH_RVGL + File.separator + Constants.RVGL_CURRENT_VERSION_TXT);
 
         if (!versionFile.isFile() || !versionFile.canRead()) {
             checkFailed = true;
@@ -265,7 +386,7 @@ public class MainFragment extends Fragment {
 
                 if (localVersion.equals(lastVersion)){
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
-                    tvUpdateStatus.setText("Running the last version!");
+                    tvUpdateStatus.setText("You are up to date!");
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
                 } else {
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
@@ -285,5 +406,11 @@ public class MainFragment extends Fragment {
         } else {
             checkForUpdates();
         }
+    }
+
+    public int createID(){
+        Date now = new Date();
+        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+        return id;
     }
 }

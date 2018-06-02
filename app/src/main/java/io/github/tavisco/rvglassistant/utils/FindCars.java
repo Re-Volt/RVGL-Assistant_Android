@@ -17,7 +17,7 @@ public class FindCars {
 
     public static void getAllCars(ItemAdapter<CarViewItem> itemAdapter) {
 
-        String path = Constants.RVGL_PATH + File.separator + "cars";
+        String path = Constants.PATH_RVGL + File.separator + "cars";
         File directory = new File(path);
         File[] files = directory.listFiles();
 
@@ -31,7 +31,7 @@ public class FindCars {
             //carFile = "/storage/emulated/0/RVGL/cars/trolley"
             //basePath = "/storage/emulated/0/RVGL"
 
-            CarItem carBase = (CarItem) ItemParser.parse(carFile, Constants.RVGL_PATH, ItemType.CAR);
+            CarItem carBase = (CarItem) ItemParser.parse(carFile, Constants.PATH_RVGL, ItemType.CAR);
             if (carBase != null){
                 CarViewItem carView = new CarViewItem(carBase);
                 itemAdapter.add(carView);
