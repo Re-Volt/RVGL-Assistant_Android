@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -46,11 +44,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Locale;
+import java.util.Collections;
 import java.util.Scanner;
 import java.util.stream.Stream;
 
@@ -86,6 +81,7 @@ public class MainFragment extends Fragment {
 
 
     // =-=-=-= Recycler =-=-=-=
+    @SuppressWarnings("FieldCanBeLocal")
     private FastAdapter<PackageItem> mFastAdapter;
     private ItemAdapter<PackageItem> mItemAdapter;
 
@@ -119,7 +115,7 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_main, container, false);
@@ -138,7 +134,13 @@ public class MainFragment extends Fragment {
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onDestroy() {
+        super.onDestroy();
+        mainFetch.close();
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         checkForUpdates();
         createPackagesList();
 
@@ -154,7 +156,7 @@ public class MainFragment extends Fragment {
         mItemAdapter = new ItemAdapter<>();
 
         //create our FastAdapter which will manage everything
-        mFastAdapter = FastAdapter.with(Arrays.asList(mItemAdapter));
+        mFastAdapter = FastAdapter.with(Collections.singletonList(mItemAdapter));
         mFastAdapter.withSelectable(true);
         mFastAdapter.withMultiSelect(true);
         mFastAdapter.withSelectOnLongClick(false);
@@ -164,35 +166,40 @@ public class MainFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 1));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this.getContext());
+        Context ctx = this.getContext();
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVIO_AVAIABLE_PACKAGES_LINK,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (!response.isEmpty()){
-                            // Split on new lines
-                            String rvioPackages[] = response.split("\\r?\\n");
-                            for (String rvioPack : rvioPackages) {
-                                mItemAdapter.add(new PackageItem(rvioPack));
+        if (ctx != null){
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(this.getContext());
+
+            // Request a string response from the provided URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVIO_AVAIABLE_PACKAGES_LINK,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if (!response.isEmpty()){
+                                // Split on new lines
+                                String rvioPackages[] = response.split("\\r?\\n");
+                                for (String rvioPack : rvioPackages) {
+                                    mItemAdapter.add(new PackageItem(rvioPack));
+                                }
                             }
                         }
-                    }
-                }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(Constants.TAG, error.getLocalizedMessage());
-            }
-        });
+                    }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    Log.d(Constants.TAG, error.getLocalizedMessage());
+                }
+            });
 
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+
         //configure our fastAdapter
         mFastAdapter.withOnClickListener(new OnClickListener<PackageItem>() {
             @Override
-            public boolean onClick(View v, IAdapter<PackageItem> adapter, @NonNull PackageItem item, int position) {
+            public boolean onClick(View v, @NonNull IAdapter<PackageItem> adapter, @NonNull PackageItem item, int position) {
                 handlePackageClick(v, item);
                 return false;
             }
@@ -209,23 +216,23 @@ public class MainFragment extends Fragment {
                     .negativeText(R.string.disagree)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
-                        public void onClick(MaterialDialog dialog, DialogAction which) {
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                             downloadPack(v, item);
                         }
                     })
                     .show();
 
 
-            NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(v.getContext(), Constants.NOTIFICATION_CHANNEL_ID)
+            /*NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(v.getContext(), Constants.NOTIFICATION_CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_cloud_download)
                     .setContentTitle("Downloading " + item.getName() + " from RV I/O")
                     .setContentText("Essa foi a primeira notificalçao evar que já fiz no android!")
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(v.getContext());
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(v.getContext());*/
 
             // notificationId is a unique int for each notification that you must define
-            //notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
+            // notificationManager.notify(Constants.NOTIFICATION_CHANNEL_ID, createID(), mBuilder.build());
         } else {
             new MaterialDialog.Builder(v.getContext())
                     .title("Stop downloading ".concat(item.getName()).concat("?"))
@@ -234,7 +241,7 @@ public class MainFragment extends Fragment {
                     .negativeText(R.string.disagree)
                     .onPositive(new MaterialDialog.SingleButtonCallback() {
                         @Override
-                        public void onClick(MaterialDialog dialog, DialogAction which) {
+                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
                             mainFetch.cancel(item.getDownloadID());
                         }
                     })
@@ -332,32 +339,35 @@ public class MainFragment extends Fragment {
         Activity activity = getActivity();
         if(activity != null){
             cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
-            tvUpdateStatus.setText("Checking for updates...");
-            tvLastVersion.setText("Last version:\nFetching...");
+            tvUpdateStatus.setText(R.string.main_checking_updates);
+            tvLastVersion.setText(String.format(getString(R.string.main_last_version), getString(R.string.main_checking)));
             imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
 
-            // Instantiate the RequestQueue.
-            RequestQueue queue = Volley.newRequestQueue(this.getContext());
+            Context ctx = this.getContext();
 
-            // Request a string response from the provided URL.
-            StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            // Need to substring the version to not get garbage
-                            compareWithLocalVersion(localVersion ,response.substring(0, 7));
-                        }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d(Constants.TAG, error.getLocalizedMessage());
-                }
-            });
+            if (ctx != null){
+                // Instantiate the RequestQueue.
+                RequestQueue queue = Volley.newRequestQueue(ctx);
 
-            // Add the request to the RequestQueue.
-            queue.add(stringRequest);
+                // Request a string response from the provided URL.
+                StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                // Need to substring the version to not get garbage
+                                compareWithLocalVersion(localVersion ,response.substring(0, 7));
+                            }
+                        }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(Constants.TAG, error.getLocalizedMessage());
+                    }
+                });
+
+                // Add the request to the RequestQueue.
+                queue.add(stringRequest);
+            }
         }
-
     }
 
     public String getLocalGameVersion(){
@@ -373,15 +383,15 @@ public class MainFragment extends Fragment {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             try {
                 try (Stream<String> lines = Files.lines(versionFile.toPath())) {
-                    localVersion = lines.findFirst().get();
+                    localVersion = lines.findFirst().orElse(null);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
                 checkFailed = true;
             }
         } else {
-            Scanner scanner = null;
-            ArrayList<String> infos = new ArrayList<String>();
+            Scanner scanner;
+            ArrayList<String> infos = new ArrayList<>();
             try {
                 scanner = new Scanner(versionFile).useDelimiter("\n");
                 while (scanner.hasNext()) {
@@ -400,7 +410,7 @@ public class MainFragment extends Fragment {
 
         Activity activity = getActivity();
         if(!checkFailed && activity != null)
-            tvInstalledVersion.setText("Installed version:\n" + localVersion);
+            tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), localVersion));
 
         return localVersion;
     }
@@ -409,19 +419,18 @@ public class MainFragment extends Fragment {
         Activity activity = getActivity();
         if (activity != null){
             if (localVersion.equals("-1") || lastVersion.equals("-1")){
-                tvUpdateStatus.setText("Oops! Couldn't get the last version");
-                tvInstalledVersion.setText("Installed version:\nCouldn't get the local version");
-                tvLastVersion.setText("Last version:\nCouldn't get the last version");
+                tvUpdateStatus.setText(R.string.main_error_getting_last_version);
+                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), getString(R.string.main_error_getting_last_version)));
+                tvLastVersion.setText(String.format(getString(R.string.main_last_version), getString(R.string.main_error_getting_last_version)));
             } else {
-                tvLastVersion.setText("Last version:\n" + lastVersion);
-
+                tvLastVersion.setText(String.format(getString(R.string.main_last_version), lastVersion));
                 if (localVersion.equals(lastVersion)){
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
-                    tvUpdateStatus.setText("You are up to date!");
+                    tvUpdateStatus.setText(R.string.main_you_are_up_to_date);
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
                 } else {
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
-                    tvUpdateStatus.setText("Version " + lastVersion + " is avaiable to download!\nClick here for more info.");
+                    tvUpdateStatus.setText(String.format(getString(R.string.main_update_avaiable), lastVersion));
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
                     updateAvaiable = true;
                 }
@@ -439,9 +448,8 @@ public class MainFragment extends Fragment {
         }
     }
 
-    public int createID(){
+    /*public int createID(){
         Date now = new Date();
-        int id = Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
-        return id;
-    }
+        return Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
+    }*/
 }

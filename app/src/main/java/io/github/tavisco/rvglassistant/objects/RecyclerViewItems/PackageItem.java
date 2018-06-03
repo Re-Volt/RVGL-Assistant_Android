@@ -17,7 +17,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
 import java.io.File;
@@ -34,12 +33,12 @@ import io.github.tavisco.rvglassistant.utils.DownloadUtils;
  */
 public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolder> {
 
-    String name;
-    String localVersion;
-    String lastVersion;
-    int downloadID;
-    boolean downloadOngoing;
-    boolean versionChecked = false;
+    private String name;
+    private String localVersion;
+    private String lastVersion;
+    private int downloadID;
+    private boolean downloadOngoing;
+    private boolean versionChecked = false;
 
     public PackageItem(String name) {
         this.name = name;
@@ -99,6 +98,7 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         vh.tvTimeRemaining.setText(DownloadUtils.getETAString(ctx, etaInMilliSeconds));
         vh.barDownloadProgress.setProgress(progress);
         vh.tvDownloadProgress.setText(String.valueOf(progress).concat("%"));
+        vh.tvDownloadStatus.setText(status);
     }
 
     /**

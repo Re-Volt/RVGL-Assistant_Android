@@ -3,8 +3,6 @@
     <string name="title_home">Home</string>
     <string name="title_tracks">Tracks</string>
     <string name="title_cars">Cars</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_track_info">Track Info</string>
     <string name="large_text">
@@ -108,4 +106,11 @@
     <string name="download_speed_bytes">%1$d B/s</string>
     <string name="download_speed_kb">%1$s KB/s</string>
     <string name="download_speed_mb">%1$s MB/s</string>
+    <string name="main_checking_updates">Checking for updates…</string>
+    <string name="main_last_version">Last: %1$s</string>
+    <string name="main_installed_version">Installed version: %s</string>
+    <string name="main_checking">Checking…</string>
+    <string name="main_error_getting_last_version">Oops! Error!</string>
+    <string name="main_you_are_up_to_date">You are up to date!</string>
+    <string name="main_update_avaiable">Version %s is avaiable to download! Click here for more info.</string>
 </resources>
