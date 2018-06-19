@@ -104,9 +104,9 @@ public class CarsFragment extends Fragment {
                 intent.putExtra("carViewItem", (new Gson()).toJson(item));
 
 
-                ImageView coverImage = (ImageView) v.findViewById(R.id.track_img);
+                ImageView coverImage = v.findViewById(R.id.track_img);
                 if (coverImage == null) {
-                    coverImage = (ImageView) ((View) v.getParent()).findViewById(R.id.track_img);
+                    coverImage = ((View) v.getParent()).findViewById(R.id.track_img);
                 }
 
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -117,16 +117,7 @@ public class CarsFragment extends Fragment {
 
                 // Setup the transition to the detail activity
                 ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverImage, "cover");
-
                 startActivity(intent, options.toBundle());
-
-
-
-
-//                String transitionName = "transi_car_img";
-//
-//                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
-//                startActivity(intent, transitionActivityOptions.toBundle());
 
                 return false;
             }

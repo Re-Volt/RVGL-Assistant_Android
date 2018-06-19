@@ -84,6 +84,9 @@ public class CarInfoActivity extends AppCompatActivity {
 
         //get the imageHeader and set the coverImage
         final ImageView image = (ImageView) findViewById(R.id.activity_detail_image);
+
+        image.setMinimumWidth(600);
+
         //Load image
         Bitmap carImg = null;
         if (car.getImagePath() != null) {
@@ -135,6 +138,13 @@ public class CarInfoActivity extends AppCompatActivity {
                 setColors(s.getTitleTextColor(), s.getRgb());
             }
         }
+
+        findViewById(R.id.container).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onBackPressed();
+            }
+        });
 
     }
 
@@ -196,7 +206,7 @@ public class CarInfoActivity extends AppCompatActivity {
         }
         //getWindow().setNavigationBarColor(vibrantSwatch.getRgb());
 
-        TextView titleTV = (TextView) mTitleContainer.findViewById(R.id.activity_detail_title);
+        TextView titleTV = mTitleContainer.findViewById(R.id.activity_detail_title);
         titleTV.setTextColor(titleTextColor);
         titleTV.setText(car.getName());
 
