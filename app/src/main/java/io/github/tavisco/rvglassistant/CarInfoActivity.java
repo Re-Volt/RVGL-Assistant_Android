@@ -1,73 +1,294 @@
 package io.github.tavisco.rvglassistant;
 
+import android.animation.Animator;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.Build;
 import android.os.Bundle;
-import android.app.Activity;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
+import android.transition.Transition;
+import android.util.Log;
+import android.view.View;
+import android.view.ViewPropertyAnimator;
+import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.TextView;
 
-import com.anychart.anychart.AnyChart;
-import com.anychart.anychart.AnyChartView;
-import com.anychart.anychart.Bar3d;
-import com.anychart.anychart.Cartesian;
-import com.anychart.anychart.DataEntry;
-import com.anychart.anychart.ValueDataEntry;
 import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 import io.github.tavisco.rvglassistant.objects.CarItem;
 import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.LevelItem;
 import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
+import io.github.tavisco.rvglassistant.others.CustomTransitionListener;
+import io.github.tavisco.rvglassistant.others.Others;
+import io.github.tavisco.rvglassistant.utils.Animations;
+import io.github.tavisco.rvglassistant.others.CustomAnimatorListener;
 
+//https://github.com/AnyChart/AnyChart-Android
 public class CarInfoActivity extends AppCompatActivity {
     CarViewItem carView = null;
     CarItem car = null;
 
+    private static final int ANIMATION_DURATION_SHORT = 150;
+    private static final int ANIMATION_DURATION_MEDIUM = 300;
+    private static final int ANIMATION_DURATION_LONG = 450;
+    private static final int ANIMATION_DURATION_EXTRA_LONG = 850;
+    private View mTitleContainer;
+    private View mTitlesContainer;
+
+    private ImageView mFabButton;
+    private ImageView mFabShareButton;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_car_info);
-        Toolbar toolbar = findViewById(R.id.car_toolbar);
+        setContentView(R.layout.cool);
+
+        // Title container
+        mTitleContainer = findViewById(R.id.activity_detail_title_container);
+        Animations.configuredHideYView(mTitleContainer);
+
+        mTitlesContainer = findViewById(R.id.activity_detail_titles);
+
+        // Define toolbar as the shared element
+        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_detail_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        //override text
+        setTitle("");
+
+        // Fab button
+        mFabButton = (ImageView) findViewById(R.id.activity_detail_fab);
+        mFabButton.setScaleX(0);
+        mFabButton.setScaleY(0);
+        mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+        mFabButton.setOnClickListener(onFabButtonListener);
+
+        // Fab share button
+        mFabShareButton = (ImageView) findViewById(R.id.activity_detail_fab_share);
+        mFabShareButton.setScaleX(0);
+        mFabShareButton.setScaleY(0);
+        mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+        mFabShareButton.setOnClickListener(onFabShareButtonListener);
+
 
         Intent intent = getIntent();
         String jsonTrack = intent.getStringExtra("carViewItem");
         carView = new Gson().fromJson(jsonTrack, CarViewItem.class);
         car = carView.getCar();
 
-        getSupportActionBar().setTitle(car.getName());
-
-        final ImageView imgBackdrop = findViewById(R.id.car_backdrop);
-
+        //get the imageHeader and set the coverImage
+        final ImageView image = (ImageView) findViewById(R.id.activity_detail_image);
         //Load image
+        Bitmap carImg = null;
         if (car.getImagePath() != null) {
-            File image = new File(car.getImagePath());
-            if (image.isFile() && image.canRead()) {
-                Glide.with(this).load(car.getImagePath()).into(imgBackdrop);
+            File imgFile = new File(car.getImagePath());
+            if (imgFile.isFile() && imgFile.canRead()) {
+                carImg = BitmapFactory.decodeFile(car.getImagePath());
+                //Glide.with(this).load(car.getImagePath()).into(image);
             } else {
-                Glide.with(this).load(R.drawable.unknown_carbox).into(imgBackdrop);
+                //Glide.with(this).load(R.drawable.unknown_carbox).into(image);
+                carImg = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_carbox);
             }
         }
 
-        Cartesian bar = AnyChart.bar();
+        Glide.with(this).load(carImg).into(image);
 
-        List<DataEntry> data = new ArrayList<>();
-        data.add(new ValueDataEntry("Speed", 10000));
-        data.add(new ValueDataEntry("Acc", 12000));
-        data.add(new ValueDataEntry("Weight", 18000));
+        if (Build.VERSION.SDK_INT >= 21) {
+            image.setTransitionName("cover");
+            // Add a listener to get noticed when the transition ends to animate the fab button
+            getWindow().getSharedElementEnterTransition().addListener(new CustomTransitionListener() {
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    super.onTransitionEnd(transition);
+                    animateActivityStart();
+                }
+            });
+        } else {
+            Animations.showViewByScale(image).setDuration(ANIMATION_DURATION_LONG).start();
+            animateActivityStart();
+        }
 
-        AnyChartView anyChartView = (AnyChartView) findViewById(R.id.car_stats_chart);
-        anyChartView.setChart(bar);
 
-        //https://github.com/AnyChart/AnyChart-Android
+        // Generate palette colors
+        Palette palette = null;
+        if (carImg != null) {
+            palette = Palette.from(carImg).generate();
 
+            Palette.Swatch s = palette.getVibrantSwatch();
+            if (s == null) {
+                s = palette.getDarkVibrantSwatch();
+            }
+            if (s == null) {
+                s = palette.getLightVibrantSwatch();
+            }
+            if (s == null) {
+                s = palette.getMutedSwatch();
+            }
+
+            if (s != null) {
+                setColors(s.getTitleTextColor(), s.getRgb());
+            }
+        }
+
+    }
+
+    /**
+     * animate the start of the activity
+     */
+    private void animateActivityStart() {
+        ViewPropertyAnimator showTitleAnimator = Animations.showViewByScale(mTitleContainer);
+        showTitleAnimator.setListener(new CustomAnimatorListener() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+
+                super.onAnimationEnd(animation);
+                mTitlesContainer.startAnimation(AnimationUtils.loadAnimation(CarInfoActivity.this, R.anim.alpha_on));
+                mTitlesContainer.setVisibility(View.VISIBLE);
+
+                //animate the fab
+                Animations.showViewByScale(mFabButton).setDuration(ANIMATION_DURATION_MEDIUM).start();
+
+                //animate the share fab
+                Animations.showViewByScale(mFabShareButton)
+                        .setDuration(ANIMATION_DURATION_MEDIUM * 2)
+                        .start();
+                mFabShareButton.animate()
+                        .translationX((-1) * Others.pxFromDp(CarInfoActivity.this, 58))
+                        .setStartDelay(ANIMATION_DURATION_MEDIUM)
+                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .start();
+
+            }
+        });
+
+        showTitleAnimator.start();
+    }
+
+    private View.OnClickListener onFabShareButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(Constants.TAG, "Share!");
+        }
+    };
+
+    private View.OnClickListener onFabButtonListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Log.d(Constants.TAG, "Outro!");
+        }
+    };
+    /**
+     * @param titleTextColor
+     * @param rgb
+     */
+    private void setColors(int titleTextColor, int rgb) {
+        mTitleContainer.setBackgroundColor(rgb);
+
+        if (Build.VERSION.SDK_INT >= 21) {
+            getWindow().setStatusBarColor(titleTextColor);
+        }
+        //getWindow().setNavigationBarColor(vibrantSwatch.getRgb());
+
+        TextView titleTV = (TextView) mTitleContainer.findViewById(R.id.activity_detail_title);
+        titleTV.setTextColor(titleTextColor);
+        titleTV.setText(car.getName());
+
+        TextView subtitleTV = (TextView) mTitleContainer.findViewById(R.id.activity_detail_subtitle);
+        subtitleTV.setTextColor(titleTextColor);
+        subtitleTV.setText("It's a car");
+
+        ((TextView) mTitleContainer.findViewById(R.id.activity_detail_subtitle))
+                .setTextColor(titleTextColor);
+    }
+
+
+    @Override
+    public void onBackPressed() {
+
+        //move the share fab below the normal fab (58 because this is the margin top + the half
+        mFabShareButton.animate()
+                .translationX(0)
+                .setDuration(ANIMATION_DURATION_MEDIUM)
+                .setListener(animationFinishListener1)
+                .start();
+    }
+
+    private CustomAnimatorListener animationFinishListener1 = new CustomAnimatorListener() {
+        private int animateFinish1 = 0;
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            super.onAnimationEnd(animation);
+            process();
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+            super.onAnimationCancel(animation);
+            process();
+        }
+
+        private void process() {
+            animateFinish1 = animateFinish1 + 1;
+            if (animateFinish1 >= 1) {
+                //create the fab animation and hide fabProgress animation, set an delay so those will hide after the shareFab is below the main fab
+                Animations.hideViewByScaleXY(mFabShareButton)
+                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .setListener(animationFinishListener2)
+                        .start();
+                Animations.hideViewByScaleXY(mFabButton)
+                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .setListener(animationFinishListener2)
+                        .start();
+            }
+        }
+    };
+
+    private CustomAnimatorListener animationFinishListener2 = new CustomAnimatorListener() {
+        private int animateFinish2 = 0;
+
+        @Override
+        public void onAnimationEnd(Animator animation) {
+            super.onAnimationEnd(animation);
+            process();
+        }
+
+        @Override
+        public void onAnimationCancel(Animator animation) {
+            super.onAnimationCancel(animation);
+            process();
+        }
+
+        private void process() {
+            animateFinish2 = animateFinish2 + 1;
+            if (animateFinish2 >= 2) {
+                ViewPropertyAnimator hideFabAnimator = Animations.hideViewByScaleY(mTitleContainer);
+                hideFabAnimator.setListener(new CustomAnimatorListener() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        coolBack();
+                    }
+                });
+            }
+        }
+    };
+
+    /**
+     *
+     */
+    private void coolBack() {
+        try {
+            super.onBackPressed();
+        } catch (Exception e) {
+            // ew;
+        }
     }
 }

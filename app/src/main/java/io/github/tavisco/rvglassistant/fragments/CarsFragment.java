@@ -3,15 +3,20 @@ package io.github.tavisco.rvglassistant.fragments;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
@@ -98,10 +103,30 @@ public class CarsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), CarInfoActivity.class);
                 intent.putExtra("carViewItem", (new Gson()).toJson(item));
 
-                String transitionName = "transi_car_img";
 
-                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
-                startActivity(intent, transitionActivityOptions.toBundle());
+                ImageView coverImage = (ImageView) v.findViewById(R.id.track_img);
+                if (coverImage == null) {
+                    coverImage = (ImageView) ((View) v.getParent()).findViewById(R.id.track_img);
+                }
+
+                if (Build.VERSION.SDK_INT >= 21) {
+                    if (coverImage.getParent() != null) {
+                        ((ViewGroup) coverImage.getParent()).setTransitionGroup(false);
+                    }
+                }
+
+                // Setup the transition to the detail activity
+                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverImage, "cover");
+
+                startActivity(intent, options.toBundle());
+
+
+
+
+//                String transitionName = "transi_car_img";
+//
+//                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
+//                startActivity(intent, transitionActivityOptions.toBundle());
 
                 return false;
             }

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RVGL Assistant</string>
+    <string name="app_name">RVGL Butler</string>
     <string name="title_home">Home</string>
     <string name="title_tracks">Tracks</string>
     <string name="title_cars">Cars</string>

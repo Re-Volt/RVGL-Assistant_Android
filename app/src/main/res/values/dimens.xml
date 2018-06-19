@@ -5,4 +5,17 @@
     <dimen name="text_margin">16dp</dimen>
     <dimen name="app_bar_height">180dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <!-- fab sizes -->
+    <dimen name="fab_small">40dp</dimen>
+    <dimen name="fab_normal">56dp</dimen>
+    <dimen name="fab_progress">72dp</dimen>
+
+    <!-- fab specific margins -->
+    <dimen name="fab_small_margin_right">24dp</dimen>
+    <dimen name="fab_small_margin_top">-20dp</dimen>
+    <dimen name="fab_normal_margin_right">16dp</dimen>
+    <dimen name="fab_normal_margin_top">-28dp</dimen>
+    <dimen name="fab_progress_margin_right">8dp</dimen>
+    <dimen name="fab_progress_margin_top">-36dp</dimen>
 </resources>

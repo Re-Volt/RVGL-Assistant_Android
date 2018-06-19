@@ -42,7 +42,7 @@
                     android:ellipsize="end"
                     android:lines="1"
                     android:textSize="20sp"
-                    android:text="io_clockworks"/>
+                    tools:text="io_clockworks"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -59,7 +59,7 @@
                         android:ellipsize="end"
                         android:lines="1"
                         android:textSize="16sp"
-                        android:text="Local: 18.0429"/>
+                        tools:text="Local: 18.0429"/>
                     <TextView
                         android:id="@+id/tv_package_last_version"
                         android:layout_width="wrap_content"
@@ -68,7 +68,7 @@
                         android:ellipsize="end"
                         android:lines="1"
                         android:textSize="16sp"
-                        android:text="RV I/O: 18.0429"/>
+                        tools:text="RV I/O: 18.0429"/>
 
                 </LinearLayout>
             </LinearLayout>
@@ -81,7 +81,8 @@
                 android:layout_marginEnd="16dp"
                 android:layout_marginStart="16dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="gone">
+                android:visibility="gone"
+                tools:visibility="visible">
 
                 <ProgressBar
                     android:id="@+id/bar_package_progress"

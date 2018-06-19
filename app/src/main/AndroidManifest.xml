@@ -67,11 +67,7 @@
         <activity
             android:name=".CarInfoActivity"
             android:label="@string/title_activity_car_info"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="io.github.tavisco.rvglassistant.MainActivity" />
+            android:theme="@style/AppTheme.CarInfoActivity">
         </activity>
     </application>
 
