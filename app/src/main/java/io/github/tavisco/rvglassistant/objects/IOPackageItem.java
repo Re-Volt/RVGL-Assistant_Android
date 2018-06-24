@@ -5,6 +5,19 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.afollestad.materialdialogs.MaterialDialog;
+import com.tonyodev.fetch2.AbstractFetchListener;
+import com.tonyodev.fetch2.Download;
+import com.tonyodev.fetch2.Error;
+import com.tonyodev.fetch2.Fetch;
+import com.tonyodev.fetch2.FetchConfiguration;
+import com.tonyodev.fetch2.FetchListener;
+import com.tonyodev.fetch2.NetworkType;
+import com.tonyodev.fetch2.Priority;
+import com.tonyodev.fetch2.Request;
+
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -16,9 +29,9 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.objects.adapters.IOPackageViewItem.ViewHolder;
 import io.github.tavisco.rvglassistant.objects.enums.UpdateStatus;
 import io.github.tavisco.rvglassistant.others.Constants;
+import io.github.tavisco.rvglassistant.utils.DownloadUtils;
 
 public class IOPackageItem {
     private final String name;
@@ -28,7 +41,11 @@ public class IOPackageItem {
     private boolean downloadOngoing;
     private boolean remoteVersionChecked = false;
     private UpdateStatus updateStatus;
+    private Fetch mainFetch;
+
     private final String ERROR_STRING = "Error";
+
+
 
     public IOPackageItem(String name) {
         this.name = name;
@@ -61,6 +78,9 @@ public class IOPackageItem {
     }
 
     public String getLocalVersion() {
+        if (localVersion.equals(ERROR_STRING)){
+            return "Not installed";
+        }
         return localVersion;
     }
 
@@ -106,7 +126,7 @@ public class IOPackageItem {
     }
 
     private void determinePackageUpdateStatus() {
-        if (getLocalVersion().equals(ERROR_STRING)){
+        if (localVersion.equals(ERROR_STRING)){
             updateStatus = UpdateStatus.NOT_INSTALLED;
             return;
         }
@@ -116,36 +136,6 @@ public class IOPackageItem {
         } else {
             updateStatus = UpdateStatus.UPDATE_AVAIABLE;
         }
-    }
-
-    public void installPackage(ViewHolder vh){
-        File zipFile = new File(this.getDownloadSavePath());
-        AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile,vh, getName(), getRemoteVersion());
-
-        boolean installedWithSuccess = false;
-
-        if (zipFile.isFile() && zipFile.canRead()) {
-            installedWithSuccess = asyncUnzipFile.doInBackground();
-            zipFile.delete();
-        }
-
-        if (installedWithSuccess){
-//            String successMessage = "%s was installed with success! Enjoy!";
-//            new MaterialDialog.Builder(vh.getContext())
-//                    .title("Success!")
-//                    .content(String.format(successMessage, this.getName()))
-//                    .positiveText(R.string.dialog_positive_text)
-//                    .show();
-        } else {
-//            String errorMessage = "An error ocurred while installing %s";
-//            new MaterialDialog.Builder(vh.view.getContext())
-//                    .title("Er... An error ocurred!")
-//                    .content(String.format(errorMessage, this.getName()))
-//                    .positiveText(R.string.dialog_positive_text)
-//                    .show();
-        }
-
-        //this.setDownloadOngoing(false,vh);
     }
 
     public Drawable getImgDrawable(Context ctx) {
@@ -160,18 +150,129 @@ public class IOPackageItem {
         return ctx.getDrawable(R.drawable.ic_cloud_alert);
     }
 
+    public void install(Context context) {
+        new MaterialDialog.Builder(context)
+                    .title("Download ".concat(getName()).concat("?"))
+                    .content("Do you wish to download ".concat(getName()).concat(" pack?"))
+                    .positiveText(R.string.agree)
+                    .negativeText(R.string.disagree)
+                    .onPositive((dialog, which) -> downloadPackage(context))
+                    .show();
+    }
+
+    private void downloadPackage(Context context) {
+        MaterialDialog dialog = new MaterialDialog.Builder(context)
+                .title("Downloading " + getName())
+                .content("Starting...")
+                .progress(false, 100, false)
+                .cancelable(false)
+                .positiveText("Cancel")
+                .onPositive((dialog1, which) -> {
+                    mainFetch.cancel(getDownloadID());
+                    Log.d(Constants.TAG, "downloadPackage: CANCELED");
+                })
+                .show();
+
+
+        FetchConfiguration fetchConfiguration = new FetchConfiguration.Builder(context)
+                .setDownloadConcurrentLimit(3)
+                .build();
+
+        mainFetch = Fetch.Impl.getInstance(fetchConfiguration);
+
+        final Request request = new Request(getDownloadLink(), getDownloadSavePath());
+        request.setPriority(Priority.HIGH);
+        request.setNetworkType(NetworkType.WIFI_ONLY);
+
+        mainFetch.removeAll();
+
+        mainFetch.enqueue(request, updatedRequest -> {
+            //Request was successfully enqueued for download.
+            Log.d(Constants.TAG, "call: Started downloading");
+            setDownloadID(request.getId());
+        }, error -> {
+            //An error occurred enqueuing the request.
+            Log.d(Constants.TAG, "ERRO STARTING DOWNLOAD.");
+        });
+
+        final FetchListener fetchListener = new AbstractFetchListener() {
+
+            @Override
+            public void onCompleted(@NotNull Download download) {
+                mainFetch.removeListener(this);
+                mainFetch.close();
+                dialog.dismiss();
+
+                File zipFile = new File(getDownloadSavePath());
+                AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile, context, getName(), getRemoteVersion());
+
+                asyncUnzipFile.doInBackground();
+
+                //item.downloadCompleted(item.getViewHolder(v));
+                //item.setDownloadOngoing(false, item.getViewHolder(v));
+            }
+
+            @Override
+            public void onError(@NotNull Download download) {
+                final Error error = download.getError();
+                final Throwable throwable = error.getThrowable(); //can be null
+                if (error == Error.UNKNOWN && throwable != null) {
+                    Log.d(Constants.TAG, "Throwable error", throwable);
+                }
+                mainFetch.removeListener(this);
+                mainFetch.close();
+                File zipFile = new File(getDownloadSavePath());
+                zipFile.delete();
+                //item.setDownloadOngoing(false, item.getViewHolder(v));
+            }
+
+            @Override
+            public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
+                if (request.getId() == download.getId()) {
+                    dialog.setProgress(download.getProgress());
+                    dialog.setContent(String.format("Downloading at %s\nRemaining: %s",
+                            DownloadUtils.getDownloadSpeedString(context, downloadedBytesPerSecond),
+                            DownloadUtils.getETAString(context, etaInMilliSeconds)));
+                    //item.updateDownloadView(v.getContext(), item.getViewHolder(v), etaInMilliSeconds, downloadedBytesPerSecond, download.getProgress(), download.getStatus().toString());
+                }
+            }
+
+
+            @Override
+            public void onCancelled(@NotNull Download download) {
+                Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
+                File zipFile = new File(getDownloadSavePath());
+                zipFile.delete();
+                //item.setDownloadOngoing(false, item.getViewHolder(v));
+            }
+        };
+
+        mainFetch.addListener(fetchListener);
+    }
+
     private static class AsyncUnzipFile extends AsyncTask<Void, String, Boolean> {
         private final File ZIP_FILE;
-        private final ViewHolder VH;
+        private final Context CTX;
         private boolean success = false;
         private final String PACKAGE_NAME;
         private final String PACKGE_VERSION;
+        private MaterialDialog asyncDialog;
 
-        public AsyncUnzipFile(File ZIP_FILE, ViewHolder VH, String PACKAGE_NAME, String PACKGE_VERSION) {
+        public AsyncUnzipFile(File ZIP_FILE, Context ctx, String PACKAGE_NAME, String PACKGE_VERSION) {
             this.ZIP_FILE = ZIP_FILE;
-            this.VH = VH;
+            this.CTX = ctx;
             this.PACKAGE_NAME = PACKAGE_NAME;
             this.PACKGE_VERSION = PACKGE_VERSION;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            asyncDialog = new MaterialDialog.Builder(CTX)
+                    .title("Unzipping files")
+                    .content("Starting...")
+                    .progress(true, 0)
+                    .show();
         }
 
         @Override
@@ -180,7 +281,7 @@ public class IOPackageItem {
                 ZipInputStream zipStream = new ZipInputStream(new FileInputStream(ZIP_FILE));
                 ZipEntry zEntry;
                 while ((zEntry = zipStream.getNextEntry()) != null) {
-                    //publishProgress(zEntry.getName());
+                    publishProgress(zEntry.getName());
                     //VH.tvTimeRemaining.setText(zEntry.getName());
                     if (zEntry.isDirectory()) {
                         hanldeDirectory(zEntry.getName());
@@ -223,6 +324,39 @@ public class IOPackageItem {
                 //VH.tvDownloadStatus.setText("Error");
             }
             return success;
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            if (asyncDialog != null){
+                asyncDialog.setContent(values[0]);
+            }
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+
+            asyncDialog.dismiss();
+
+            ZIP_FILE.delete();
+
+            String message;
+            String title;
+            if (success){
+                title = "Success!";
+                message = String.format("%s was installed with success! Enjoy!", PACKAGE_NAME);
+            } else {
+                title = "Er... An error ocurred!";
+                message = String.format("An error ocurred while installing %s", PACKAGE_NAME);
+            }
+
+            new MaterialDialog.Builder(CTX)
+                    .title(title)
+                    .content(message)
+                    .positiveText("Ok")
+                    .show();
         }
 
         private void hanldeDirectory(String dir) {

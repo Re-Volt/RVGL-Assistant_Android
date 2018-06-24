@@ -26,7 +26,6 @@ import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.others.Constants;
 import io.github.tavisco.rvglassistant.objects.IOPackageItem;
-import io.github.tavisco.rvglassistant.utils.DownloadUtils;
 
 /**
  * Created by Tavisco on 25/05/18.
@@ -34,48 +33,14 @@ import io.github.tavisco.rvglassistant.utils.DownloadUtils;
 public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackageViewItem.ViewHolder> {
 
     IOPackageItem packageItem;
-    private boolean downloadOngoing;
-    private boolean versionChecked = false;
 
     public IOPackageViewItem(String name) {
         packageItem = new IOPackageItem(name);
-
     }
 
-
-
-    public boolean isDownloadOngoing() {
-        return downloadOngoing;
+    public IOPackageItem getPackageItem() {
+        return packageItem;
     }
-
-    public void setDownloadOngoing(boolean downloadOngoing, @NonNull final IOPackageViewItem.ViewHolder viewHolder) {
-        this.downloadOngoing = downloadOngoing;
-        if (downloadOngoing){
-            viewHolder.lytPackageDownload.setVisibility(View.VISIBLE);
-        } else {
-            viewHolder.lytPackageDownload.setVisibility(View.GONE);
-        }
-    }
-
-    public void updateDownloadView(Context ctx, @NonNull final IOPackageViewItem.ViewHolder vh, long etaInMilliSeconds, long downloadedBytesPerSecond, int progress, String status){
-        vh.tvDownloadSpeed.setText(DownloadUtils.getDownloadSpeedString(ctx, downloadedBytesPerSecond));
-        vh.tvTimeRemaining.setText(DownloadUtils.getETAString(ctx, etaInMilliSeconds));
-        vh.barDownloadProgress.setProgress(progress);
-        vh.tvDownloadProgress.setText(String.valueOf(progress).concat("%"));
-        vh.tvDownloadStatus.setText(status);
-    }
-
-    public void downloadCompleted(ViewHolder vh) {
-        vh.tvDownloadSpeed.setVisibility(View.INVISIBLE);
-        vh.tvTimeRemaining.setText("Preparing...");
-        vh.barDownloadProgress.setVisibility(View.INVISIBLE);
-        vh.tvDownloadProgress.setVisibility(View.INVISIBLE);
-        vh.tvDownloadStatus.setText("Unzipping...");
-        packageItem.installPackage(vh);
-    }
-
-
-
 
     /**
      * defines the type defining this item. must be unique. preferably an id
@@ -133,7 +98,6 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
         ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
-            //this.view = (FrameLayout) view;
 
         }
 
@@ -167,7 +131,6 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
                                 if (!response.isEmpty()){
                                     item.setRemoteVersion(response.substring(0, 7));
                                     item.setRemoteVersionChecked(true);
-                                    //tvPackageLastVersion.setText(String.format("Last: %s", item.getRemoteVersion()));
                                     bindView(viewItem,payloads);
                                 }
                             }
@@ -192,7 +155,5 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
             cardView.setCardBackgroundColor(ctx.getResources().getColor(R.color.cardview_dark_background));
             imgUpdateStatus.setImageDrawable(null);
         }
-
-
     }
 }

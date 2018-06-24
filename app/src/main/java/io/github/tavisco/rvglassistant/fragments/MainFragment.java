@@ -25,10 +25,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
-import com.mikepenz.fastadapter.listeners.OnClickListener;
-import com.tonyodev.fetch2.Fetch;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -78,7 +75,7 @@ public class MainFragment extends Fragment {
 
     // =-=-=-= Items/Variables =-=-=-=
     boolean updateAvaiable = false;
-    private Fetch mainFetch;
+
 
 
 
@@ -126,19 +123,12 @@ public class MainFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mainFetch.close();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         checkForUpdates();
         createPackagesList();
-
-        mainFetch = new Fetch.Builder(this.getContext(), "Main")
-                .setDownloadConcurrentLimit(1) // Allows Fetch to download 1 file at moment.
-                .enableLogging(true)
-                .build();
-
     }
 
     private void createPackagesList() {
@@ -188,130 +178,17 @@ public class MainFragment extends Fragment {
         }
 
         //configure our fastAdapter
-        mFastAdapter.withOnClickListener(new OnClickListener<IOPackageViewItem>() {
-            @Override
-            public boolean onClick(View v, @NonNull IAdapter<IOPackageViewItem> adapter, @NonNull IOPackageViewItem item, int position) {
-                handlePackageClick(v, item);
-                return false;
-            }
+        mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
+            handlePackageClick(v, item);
+            return false;
         });
     }
 
     private void handlePackageClick(final View v, final IOPackageViewItem item) {
-//        if (!item.isDownloadOngoing()){
-//
-//            new MaterialDialog.Builder(v.getContext())
-//                    .title("Download ".concat(item.getName()).concat("?"))
-//                    .content("Do you wish to download ".concat(item.getName()).concat(" pack?"))
-//                    .positiveText(R.string.agree)
-//                    .negativeText(R.string.disagree)
-//                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-//                        @Override
-//                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-//                            downloadPack(v, item);
-//                        }
-//                    })
-//                    .show();
-//        } else {
-//            new MaterialDialog.Builder(v.getContext())
-//                    .title("Stop downloading ".concat(item.getName()).concat("?"))
-//                    .content("Do you wish to stop downloading ".concat(item.getName()).concat("?"))
-//                    .positiveText(R.string.agree)
-//                    .negativeText(R.string.disagree)
-//                    .onPositive(new MaterialDialog.SingleButtonCallback() {
-//                        @Override
-//                        public void onClick(@NonNull MaterialDialog dialog, @NonNull DialogAction which) {
-//                            mainFetch.cancel(item.getDownloadID());
-//                        }
-//                    })
-//                    .show();
-//        }
+        item.getPackageItem().install(v.getContext());
     }
 
-    public void downloadPack(final View v, final IOPackageViewItem item){
-//        final com.tonyodev.fetch2.Request request = new com.tonyodev.fetch2.Request(item.getDownloadLink(), item.getDownloadSavePath());
-//        request.setPriority(Priority.HIGH);
-//        request.setNetworkType(NetworkType.WIFI_ONLY);
-//
-//        mainFetch.removeAll();
-//
-//        mainFetch.enqueue(request, new Func<Download>() {
-//            @Override
-//            public void call(Download download) {
-//                Log.d(Constants.TAG, "call: Started downloading");
-//                item.setDownloadID(download.getId());
-//                item.setDownloadOngoing(true, item.getViewHolder(v));
-//                //Request successfully Queued for download
-//            }
-//        }, new Func<Error>() {
-//            @Override
-//            public void call(Error error) {
-//                //An error occurred when enqueuing a request.
-//                Log.d(Constants.TAG, "ERRO STARTING DOWNLOAD.");
-//            }
-//        });
-//
-//        final FetchListener fetchListener = new FetchListener() {
-//
-//            @Override
-//            public void onQueued(Download download) {
-//
-//            }
-//
-//            @Override
-//            public void onCompleted(@NotNull Download download) {
-//                mainFetch.removeListener(this);
-//                item.downloadCompleted(item.getViewHolder(v));
-//                //item.setDownloadOngoing(false, item.getViewHolder(v));
-//            }
-//
-//            @Override
-//            public void onError(@NotNull Download download) {
-//                final Error error = download.getError();
-//                final Throwable throwable = error.getThrowable(); //can be null
-//                if (error == Error.UNKNOWN && throwable != null) {
-//                    Log.d(Constants.TAG, "Throwable error", throwable);
-//                }
-//                mainFetch.removeListener(this);
-//                item.setDownloadOngoing(false, item.getViewHolder(v));
-//            }
-//
-//            @Override
-//            public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
-//                if (request.getId() == download.getId()) {
-//                    item.updateDownloadView(v.getContext(), item.getViewHolder(v), etaInMilliSeconds, downloadedBytesPerSecond, download.getProgress(), download.getStatus().toString());
-//                }
-//            }
-//
-//            @Override
-//            public void onPaused(@NotNull Download download) {
-//
-//            }
-//
-//            @Override
-//            public void onResumed(@NotNull Download download) {
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NotNull Download download) {
-//                Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
-//                item.setDownloadOngoing(false, item.getViewHolder(v));
-//            }
-//
-//            @Override
-//            public void onRemoved(@NotNull Download download) {
-//
-//            }
-//
-//            @Override
-//            public void onDeleted(@NotNull Download download) {
-//
-//            }
-//        };
-//
-//        mainFetch.addListener(fetchListener);
-    }
+
 
     public void checkForUpdates(){
         final String localVersion = getLocalGameVersion();
@@ -428,8 +305,4 @@ public class MainFragment extends Fragment {
         }
     }
 
-    /*public int createID(){
-        Date now = new Date();
-        return Integer.parseInt(new SimpleDateFormat("ddHHmmss",  Locale.US).format(now));
-    }*/
 }
