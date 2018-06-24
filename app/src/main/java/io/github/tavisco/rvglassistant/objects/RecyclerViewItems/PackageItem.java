@@ -1,6 +1,7 @@
 package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 
 import android.content.Context;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -11,6 +12,7 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -19,8 +21,13 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.util.List;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -101,6 +108,101 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         vh.tvDownloadStatus.setText(status);
     }
 
+    public void downloadCompleted(ViewHolder vh) {
+        vh.tvDownloadSpeed.setVisibility(View.INVISIBLE);
+        vh.tvTimeRemaining.setText("Preparing...");
+        vh.barDownloadProgress.setVisibility(View.INVISIBLE);
+        vh.tvDownloadProgress.setVisibility(View.INVISIBLE);
+        vh.tvDownloadStatus.setText("Unzipping...");
+        installPackage(vh);
+    }
+
+    public void installPackage(ViewHolder vh){
+        File zipFile = new File(this.getDownloadSavePath());
+        AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile,vh);
+
+        boolean installedWithSuccess = asyncUnzipFile.doInBackground();
+
+        if (installedWithSuccess){
+            String successMessage = "%s was installed with success! Enjoy!";
+            new MaterialDialog.Builder(vh.view.getContext())
+                    .title("Success!")
+                    .content(String.format(successMessage, this.getName()))
+                    .positiveText(R.string.dialog_positive_text)
+                    .show();
+        } else {
+            String errorMessage = "An error ocurred while installing %s";
+            new MaterialDialog.Builder(vh.view.getContext())
+                    .title("Er... An error ocurred!")
+                    .content(String.format(errorMessage, this.getName()))
+                    .positiveText(R.string.dialog_positive_text)
+                    .show();
+        }
+
+        this.setDownloadOngoing(false,vh);
+    }
+
+
+
+    private static class AsyncUnzipFile extends AsyncTask<Void, String, Boolean> {
+        private final File ZIP_FILE;
+        private final ViewHolder VH;
+        private boolean success = false;
+
+        public AsyncUnzipFile(File ZIP_FILE, ViewHolder VH) {
+            this.ZIP_FILE = ZIP_FILE;
+            this.VH = VH;
+        }
+
+        @Override
+        protected Boolean doInBackground(Void... voids) {
+            try {
+                ZipInputStream zipStream = new ZipInputStream(new FileInputStream(ZIP_FILE));
+                ZipEntry zEntry;
+                while ((zEntry = zipStream.getNextEntry()) != null) {
+                    //publishProgress(zEntry.getName());
+                    VH.tvTimeRemaining.setText(zEntry.getName());
+                    if (zEntry.isDirectory()) {
+                        hanldeDirectory(zEntry.getName());
+                    } else {
+                        File directory = new File(
+                                Constants.PATH_RVGL + File.separator + zEntry.getName());
+                        directory = new File(directory.getParent());
+                        if (!directory.exists()){
+                            directory.mkdirs();
+                        }
+                        FileOutputStream fout = new FileOutputStream(
+                                Constants.PATH_RVGL + File.separator + zEntry.getName());
+                        BufferedOutputStream bufout = new BufferedOutputStream(fout);
+                        byte[] buffer = new byte[1024];
+                        int read = 0;
+                        while ((read = zipStream.read(buffer)) != -1) {
+                            bufout.write(buffer, 0, read);
+                        }
+
+                        zipStream.closeEntry();
+                        bufout.flush();
+                        bufout.close();
+                        fout.close();
+                    }
+                }
+                zipStream.close();
+                success = true;
+            } catch (Exception e) {
+                Log.e(Constants.TAG.concat(" Unzip: "), e.getMessage());
+                VH.tvDownloadStatus.setText("Error");
+            }
+            return success;
+        }
+
+        private void hanldeDirectory(String dir) {
+            File f = new File(Constants.PATH_RVGL + File.separator + dir);
+            if (!f.isDirectory()) {
+                f.mkdirs();
+            }
+        }
+    }
+
     /**
      * defines the type defining this item. must be unique. preferably an id
      *
@@ -147,7 +249,7 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
                         @Override
                         public void onResponse(String response) {
                             if (!response.isEmpty()){
-                                viewHolder.tvPackageLastVersion.setText("Last: " + response.substring(0, 7));
+                                viewHolder.tvPackageLastVersion.setText(String.format("Last: %s", response.substring(0, 7)));
                                 versionChecked = true;
                             }
                         }
@@ -175,31 +277,34 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         return new ViewHolder(v);
     }
 
+
+
     /**
      * our ViewHolder
      */
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         protected FrameLayout view;
+
         @BindView(R.id.img_package_updateStatus)
-        ImageView imgUpdateStatus;
+            ImageView imgUpdateStatus;
         @BindView(R.id.tv_package_title)
-        TextView tvPackageTitle;
+            TextView tvPackageTitle;
         @BindView(R.id.tv_package_local_version)
-        TextView tvPackageLocalVersion;
+            TextView tvPackageLocalVersion;
         @BindView(R.id.tv_package_last_version)
-        TextView tvPackageLastVersion;
+            TextView tvPackageLastVersion;
         @BindView(R.id.lnLyt_package_download)
-        LinearLayout lytPackageDownload;
+            LinearLayout lytPackageDownload;
         @BindView(R.id.tv_package_download_speed)
-                TextView tvDownloadSpeed;
+            TextView tvDownloadSpeed;
         @BindView(R.id.tv_package_download_status)
-                TextView tvDownloadStatus;
+            TextView tvDownloadStatus;
         @BindView(R.id.tv_package_download_progress)
-                TextView tvDownloadProgress;
+            TextView tvDownloadProgress;
         @BindView(R.id.tv_package_time_remaining)
-                TextView tvTimeRemaining;
+            TextView tvTimeRemaining;
         @BindView(R.id.bar_package_progress)
-        ProgressBar barDownloadProgress;
+            ProgressBar barDownloadProgress;
 
         ViewHolder(View view) {
             super(view);

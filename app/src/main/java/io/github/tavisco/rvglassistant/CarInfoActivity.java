@@ -66,14 +66,14 @@ public class CarInfoActivity extends AppCompatActivity {
         mFabButton = (ImageView) findViewById(R.id.activity_detail_fab);
         mFabButton.setScaleX(0);
         mFabButton.setScaleY(0);
-        mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+        mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_chart_bar));
         mFabButton.setOnClickListener(onFabButtonListener);
 
         // Fab share button
         mFabShareButton = (ImageView) findViewById(R.id.activity_detail_fab_share);
         mFabShareButton.setScaleX(0);
         mFabShareButton.setScaleY(0);
-        mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
+        mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_share_variant));
         mFabShareButton.setOnClickListener(onFabShareButtonListener);
 
 
@@ -89,15 +89,18 @@ public class CarInfoActivity extends AppCompatActivity {
 
         //Load image
         Bitmap carImg = null;
+        boolean imageSetted = false;
         if (car.getImagePath() != null) {
             File imgFile = new File(car.getImagePath());
             if (imgFile.isFile() && imgFile.canRead()) {
                 carImg = BitmapFactory.decodeFile(car.getImagePath());
+                imageSetted = true;
                 //Glide.with(this).load(car.getImagePath()).into(image);
-            } else {
-                //Glide.with(this).load(R.drawable.unknown_carbox).into(image);
-                carImg = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_carbox);
             }
+        }
+
+        if (!imageSetted){
+            carImg = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_carbox);
         }
 
         Glide.with(this).load(carImg).into(image);

@@ -113,4 +113,5 @@
     <string name="main_error_getting_last_version">Oops! Error!</string>
     <string name="main_you_are_up_to_date">You are up to date!</string>
     <string name="main_update_avaiable">Version %s is avaiable to download! Click here for more info.</string>
+    <string name="dialog_positive_text">Ok</string>
 </resources>

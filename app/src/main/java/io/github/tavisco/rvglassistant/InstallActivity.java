@@ -204,13 +204,13 @@ public class InstallActivity extends AppCompatActivity {
                                 if (zEntry.isDirectory()) {
                                     hanldeDirectory(zEntry.getName());
                                 } else {
-                                    File directory = new File(this.destinationFolder + "/" + zEntry.getName());
+                                    File directory = new File(this.destinationFolder + File.separator + zEntry.getName());
                                     directory = new File(directory.getParent());
                                     if (!directory.exists()){
                                         directory.mkdirs();
                                     }
                                     FileOutputStream fout = new FileOutputStream(
-                                            this.destinationFolder + "/" + zEntry.getName());
+                                            this.destinationFolder + File.separator + zEntry.getName());
                                     BufferedOutputStream bufout = new BufferedOutputStream(fout);
                                     byte[] buffer = new byte[1024];
                                     int read = 0;
@@ -303,7 +303,7 @@ public class InstallActivity extends AppCompatActivity {
             }
         }
 
-        public void hanldeDirectory(String dir) {
+        private void hanldeDirectory(String dir) {
             File f = new File(this.destinationFolder + File.separator + dir);
             if (!f.isDirectory()) {
                 f.mkdirs();

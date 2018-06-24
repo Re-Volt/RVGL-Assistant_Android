@@ -48,7 +48,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
                     android:layout_marginLeft="48dp"
-                    android:layout_marginRight="72dp"
+                    android:layout_marginRight="30dp"
                     android:visibility="invisible"
                     tools:visibility="visible">
 

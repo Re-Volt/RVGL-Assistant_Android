@@ -282,7 +282,8 @@ public class MainFragment extends Fragment {
             @Override
             public void onCompleted(@NotNull Download download) {
                 mainFetch.removeListener(this);
-                item.setDownloadOngoing(false, item.getViewHolder(v));
+                item.downloadCompleted(item.getViewHolder(v));
+                //item.setDownloadOngoing(false, item.getViewHolder(v));
             }
 
             @Override

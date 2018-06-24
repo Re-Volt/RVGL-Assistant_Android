@@ -31,7 +31,7 @@
                     android:layout_height="wrap_content"
                     android:textSize="35sp"
                     android:fontFamily="sans-serif-thin"
-                    android:text="RVGL Assistant"/>
+                    android:text="RVGL Butler"/>
             </LinearLayout>
         </android.support.v7.widget.CardView>
 
