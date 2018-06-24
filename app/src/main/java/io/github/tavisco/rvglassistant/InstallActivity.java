@@ -351,7 +351,8 @@ public class InstallActivity extends AppCompatActivity {
     @OnClick(R.id.btnInstall)
     public void installContent(){
         AsyncUnzipFile unzip = new AsyncUnzipFile(InstallActivity.this);
-
+        //The "true" here is to tell the task to install
+        //the files to the game, NOT to just unzip them
         unzip.execute(true);
     }
 

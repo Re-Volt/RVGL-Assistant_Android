@@ -117,11 +117,16 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         installPackage(vh);
     }
 
-    public void installPackage(ViewHolder vh){
+    private void installPackage(ViewHolder vh){
         File zipFile = new File(this.getDownloadSavePath());
         AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile,vh);
 
-        boolean installedWithSuccess = asyncUnzipFile.doInBackground();
+        boolean installedWithSuccess = false;
+
+        if (zipFile.isFile() && zipFile.canRead()) {
+            installedWithSuccess = asyncUnzipFile.doInBackground();
+            zipFile.delete();
+        }
 
         if (installedWithSuccess){
             String successMessage = "%s was installed with success! Enjoy!";
