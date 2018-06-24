@@ -38,7 +38,6 @@ public class CarInfoActivity extends AppCompatActivity {
     private static final int ANIMATION_DURATION_SHORT = 150;
     private static final int ANIMATION_DURATION_MEDIUM = 300;
     private static final int ANIMATION_DURATION_LONG = 450;
-    private static final int ANIMATION_DURATION_EXTRA_LONG = 850;
     private View mTitleContainer;
     private View mTitlesContainer;
 
@@ -95,7 +94,6 @@ public class CarInfoActivity extends AppCompatActivity {
             if (imgFile.isFile() && imgFile.canRead()) {
                 carImg = BitmapFactory.decodeFile(car.getImagePath());
                 imageSetted = true;
-                //Glide.with(this).load(car.getImagePath()).into(image);
             }
         }
 
@@ -116,13 +114,13 @@ public class CarInfoActivity extends AppCompatActivity {
                 }
             });
         } else {
-            Animations.showViewByScale(image).setDuration(ANIMATION_DURATION_LONG).start();
+            Animations.showViewByScale(image).setDuration(ANIMATION_DURATION_MEDIUM).start();
             animateActivityStart();
         }
 
 
         // Generate palette colors
-        Palette palette = null;
+        Palette palette;
         if (carImg != null) {
             palette = Palette.from(carImg).generate();
 
@@ -142,12 +140,7 @@ public class CarInfoActivity extends AppCompatActivity {
             }
         }
 
-        findViewById(R.id.container).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
+        findViewById(R.id.container).setOnClickListener(v -> onBackPressed());
 
     }
 
@@ -166,16 +159,16 @@ public class CarInfoActivity extends AppCompatActivity {
                 mTitlesContainer.setVisibility(View.VISIBLE);
 
                 //animate the fab
-                Animations.showViewByScale(mFabButton).setDuration(ANIMATION_DURATION_MEDIUM).start();
+                Animations.showViewByScale(mFabButton).setDuration(ANIMATION_DURATION_SHORT).start();
 
                 //animate the share fab
                 Animations.showViewByScale(mFabShareButton)
-                        .setDuration(ANIMATION_DURATION_MEDIUM * 2)
+                        .setDuration(ANIMATION_DURATION_SHORT * 2)
                         .start();
                 mFabShareButton.animate()
                         .translationX((-1) * Others.pxFromDp(CarInfoActivity.this, 58))
-                        .setStartDelay(ANIMATION_DURATION_MEDIUM)
-                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .setStartDelay(ANIMATION_DURATION_SHORT)
+                        .setDuration(ANIMATION_DURATION_SHORT)
                         .start();
 
             }
@@ -184,19 +177,9 @@ public class CarInfoActivity extends AppCompatActivity {
         showTitleAnimator.start();
     }
 
-    private View.OnClickListener onFabShareButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Log.d(Constants.TAG, "Share!");
-        }
-    };
+    private View.OnClickListener onFabShareButtonListener = v -> Log.d(Constants.TAG, "Share!");
 
-    private View.OnClickListener onFabButtonListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            Log.d(Constants.TAG, "Outro!");
-        }
-    };
+    private View.OnClickListener onFabButtonListener = v -> Log.d(Constants.TAG, "Outro!");
     /**
      * @param titleTextColor
      * @param rgb
@@ -207,7 +190,6 @@ public class CarInfoActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= 21) {
             getWindow().setStatusBarColor(titleTextColor);
         }
-        //getWindow().setNavigationBarColor(vibrantSwatch.getRgb());
 
         TextView titleTV = mTitleContainer.findViewById(R.id.activity_detail_title);
         titleTV.setTextColor(titleTextColor);
@@ -228,7 +210,7 @@ public class CarInfoActivity extends AppCompatActivity {
         //move the share fab below the normal fab (58 because this is the margin top + the half
         mFabShareButton.animate()
                 .translationX(0)
-                .setDuration(ANIMATION_DURATION_MEDIUM)
+                .setDuration(ANIMATION_DURATION_SHORT)
                 .setListener(animationFinishListener1)
                 .start();
     }
@@ -253,11 +235,11 @@ public class CarInfoActivity extends AppCompatActivity {
             if (animateFinish1 >= 1) {
                 //create the fab animation and hide fabProgress animation, set an delay so those will hide after the shareFab is below the main fab
                 Animations.hideViewByScaleXY(mFabShareButton)
-                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .setDuration(ANIMATION_DURATION_SHORT)
                         .setListener(animationFinishListener2)
                         .start();
                 Animations.hideViewByScaleXY(mFabButton)
-                        .setDuration(ANIMATION_DURATION_MEDIUM)
+                        .setDuration(ANIMATION_DURATION_SHORT)
                         .setListener(animationFinishListener2)
                         .start();
             }

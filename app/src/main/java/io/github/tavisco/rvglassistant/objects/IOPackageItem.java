@@ -138,16 +138,20 @@ public class IOPackageItem {
         }
     }
 
+    public UpdateStatus getUpdateStatus() {
+        return updateStatus;
+    }
+
     public Drawable getImgDrawable(Context ctx) {
         if (updateStatus == UpdateStatus.UPDATED){
             return ctx.getDrawable(R.drawable.ic_cloud_check);
         } else if (updateStatus == UpdateStatus.UPDATE_AVAIABLE){
-            return ctx.getDrawable(R.drawable.ic_cloud_sync);
+            return ctx.getDrawable(R.drawable.ic_cloud_alert);
         } else if (updateStatus == UpdateStatus.NOT_INSTALLED){
             return ctx.getDrawable(R.drawable.ic_cloud_download);
         }
 
-        return ctx.getDrawable(R.drawable.ic_cloud_alert);
+        return ctx.getDrawable(R.drawable.ic_cloud);
     }
 
     public void install(Context context) {

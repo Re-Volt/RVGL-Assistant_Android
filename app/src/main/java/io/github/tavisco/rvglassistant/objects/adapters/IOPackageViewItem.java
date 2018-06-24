@@ -24,6 +24,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
+import io.github.tavisco.rvglassistant.objects.enums.UpdateStatus;
 import io.github.tavisco.rvglassistant.others.Constants;
 import io.github.tavisco.rvglassistant.objects.IOPackageItem;
 
@@ -107,13 +108,16 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
             final Context ctx = itemView.getContext();
 
             tvPackageTitle.setText(item.getName());
-            tvPackageLocalVersion.setText(item.getLocalVersion());
-            tvPackageLastVersion.setText(item.getRemoteVersion());
+            tvPackageLocalVersion.setText(String.format(ctx.getString(R.string.package_local_version), item.getLocalVersion()));
+            tvPackageLastVersion.setText(String.format(ctx.getString(R.string.package_IO_version), item.getRemoteVersion()));
             imgUpdateStatus.setImageDrawable(item.getImgDrawable(ctx));
 
-            if (item.getLocalVersion().equals(item.getRemoteVersion())){
-                imgUpdateStatus.setImageDrawable(ctx.getDrawable(R.drawable.ic_cloud_check));
+            //if (item.getLocalVersion().equals(item.getRemoteVersion())){
+            if (item.getUpdateStatus() == UpdateStatus.UPDATED){
+                //imgUpdateStatus.setImageDrawable(ctx.getDrawable(R.drawable.ic_cloud_check));
                 cardView.setCardBackgroundColor(ctx.getResources().getColor(R.color.updatedGreen));
+            } else if (item.getUpdateStatus() == UpdateStatus.UPDATE_AVAIABLE){
+                cardView.setCardBackgroundColor(ctx.getResources().getColor(R.color.newVersionRed));
             }
 
             if (!item.isRemoteVersionChecked()){
@@ -125,21 +129,13 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
 
                 // Request a string response from the rvioRequest URL.
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, rvioRequest,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                if (!response.isEmpty()){
-                                    item.setRemoteVersion(response.substring(0, 7));
-                                    item.setRemoteVersionChecked(true);
-                                    bindView(viewItem,payloads);
-                                }
+                        response -> {
+                            if (!response.isEmpty()){
+                                item.setRemoteVersion(response.substring(0, 7));
+                                item.setRemoteVersionChecked(true);
+                                bindView(viewItem,payloads);
                             }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(Constants.TAG, error.getLocalizedMessage());
-                    }
-                });
+                        }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
 
                 // Add the request to the RequestQueue.
                 queue.add(stringRequest);
