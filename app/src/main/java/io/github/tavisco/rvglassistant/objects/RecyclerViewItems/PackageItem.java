@@ -3,6 +3,7 @@ package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
 import android.content.Context;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
@@ -24,8 +25,11 @@ import com.mikepenz.fastadapter.items.AbstractItem;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.PrintWriter;
 import java.util.List;
+import java.util.Scanner;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -119,7 +123,7 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
 
     private void installPackage(ViewHolder vh){
         File zipFile = new File(this.getDownloadSavePath());
-        AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile,vh);
+        AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile,vh, getName(), getLastVersion());
 
         boolean installedWithSuccess = false;
 
@@ -153,10 +157,14 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
         private final File ZIP_FILE;
         private final ViewHolder VH;
         private boolean success = false;
+        private final String PACKAGE_NAME;
+        private final String PACKGE_VERSION;
 
-        public AsyncUnzipFile(File ZIP_FILE, ViewHolder VH) {
+        public AsyncUnzipFile(File ZIP_FILE, ViewHolder VH, String PACKAGE_NAME, String PACKGE_VERSION) {
             this.ZIP_FILE = ZIP_FILE;
             this.VH = VH;
+            this.PACKAGE_NAME = PACKAGE_NAME;
+            this.PACKGE_VERSION = PACKGE_VERSION;
         }
 
         @Override
@@ -192,6 +200,16 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
                     }
                 }
                 zipStream.close();
+
+                hanldeDirectory(Constants.VERSIONS_FOLDER_NAME);
+
+                PrintWriter writer = new PrintWriter(
+                        Constants.PATH_RVGL.concat(File.separator).concat(
+                                Constants.VERSIONS_FOLDER_NAME).concat(File.separator).concat(
+                                        PACKAGE_NAME).concat(".txt"), "UTF-8");
+                writer.print(PACKGE_VERSION);
+                writer.close();
+
                 success = true;
             } catch (Exception e) {
                 Log.e(Constants.TAG.concat(" Unzip: "), e.getMessage());
@@ -239,14 +257,15 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
 
         if (!versionChecked){
             viewHolder.tvPackageTitle.setText(getName());
-            viewHolder.tvPackageLocalVersion.setText("Local: Checking");
+            viewHolder.tvPackageLocalVersion.setText("Local: Not installed");
             viewHolder.tvPackageLastVersion.setText("Last: Checking");
+            final Context ctx = viewHolder.itemView.getContext();
 
             // Ex. https://distribute.re-volt.io/assets/io_cars.txt
             String rvioRequest = Constants.RVIO_ASSETS_LINK + getName() + ".txt";
 
             // Instantiate the RequestQueue.
-            RequestQueue queue = Volley.newRequestQueue(viewHolder.itemView.getContext());
+            RequestQueue queue = Volley.newRequestQueue(ctx);
 
             // Request a string response from the rvioRequest URL.
             StringRequest stringRequest = new StringRequest(Request.Method.GET, rvioRequest,
@@ -254,8 +273,23 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
                         @Override
                         public void onResponse(String response) {
                             if (!response.isEmpty()){
-                                viewHolder.tvPackageLastVersion.setText(String.format("Last: %s", response.substring(0, 7)));
+                                setLastVersion(response.substring(0, 7));
+                                viewHolder.tvPackageLastVersion.setText(String.format("Last: %s", getLastVersion()));
                                 versionChecked = true;
+                                compareVersions(viewHolder);
+                            }
+                        }
+
+                        private void compareVersions(ViewHolder viewHolder) {
+                            File localVersionFile = new File(Constants.PATH_RVGL.concat(File.separator).concat(Constants.VERSIONS_FOLDER_NAME).concat(File.separator).concat(getName()).concat(".txt"));
+                            if (localVersionFile.isFile() && localVersionFile.canRead()) {
+                                setLocalVersion(readLocalVersion(localVersionFile));
+                                viewHolder.tvPackageLocalVersion.setText(ctx.getString(R.string.package_local, getLocalVersion()));
+
+                                if (getLocalVersion().equals(getLastVersion())){
+                                    viewHolder.imgUpdateStatus.setImageDrawable(ctx.getDrawable(R.drawable.ic_cloud_check));
+                                    viewHolder.cardView.setCardBackgroundColor(ctx.getResources().getColor(R.color.updatedGreen));
+                                }
                             }
                         }
                     }, new Response.ErrorListener() {
@@ -271,6 +305,14 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
 
     }
 
+    private String readLocalVersion(File localVersionFile) {
+        try (Scanner sc = new Scanner(localVersionFile)) {
+            return sc.next();
+        } catch (FileNotFoundException e) {
+            return "Error";
+        }
+    }
+
     @Override
     public void unbindView(@NonNull ViewHolder holder) {
         super.unbindView(holder);
@@ -281,8 +323,6 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
     public ViewHolder getViewHolder(@NonNull View v) {
         return new ViewHolder(v);
     }
-
-
 
     /**
      * our ViewHolder
@@ -310,6 +350,8 @@ public class PackageItem extends AbstractItem<PackageItem, PackageItem.ViewHolde
             TextView tvTimeRemaining;
         @BindView(R.id.bar_package_progress)
             ProgressBar barDownloadProgress;
+        @BindView(R.id.card_package)
+            CardView cardView;
 
         ViewHolder(View view) {
             super(view);

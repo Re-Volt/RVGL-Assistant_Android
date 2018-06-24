@@ -15,6 +15,7 @@ public class Constants {
     public static final String PATH_RVGL_BUTLER = Environment.getExternalStorageDirectory().toString()
             + File.separator + "RVGLAssist";
     public static final String PATH_RVGL_BUTLER_UNZIP = PATH_RVGL_BUTLER + File.separator + "unzipped";
+    public static final String VERSIONS_FOLDER_NAME = "versions";
 
     //Links
     public static final String RVGL_LAST_VERSION_LINK = "https://distribute.re-volt.io/releases/rvgl_version.txt";
