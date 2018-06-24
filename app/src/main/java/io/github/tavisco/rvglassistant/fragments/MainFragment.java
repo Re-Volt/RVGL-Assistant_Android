@@ -155,23 +155,15 @@ public class MainFragment extends Fragment {
 
             // Request a string response from the provided URL.
             StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVIO_AVAIABLE_PACKAGES_LINK,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            if (!response.isEmpty()){
-                                // Split on new lines
-                                String rvioPackages[] = response.split("\\r?\\n");
-                                for (String rvioPack : rvioPackages) {
-                                    mItemAdapter.add(new IOPackageViewItem(rvioPack));
-                                }
+                    response -> {
+                        if (!response.isEmpty()){
+                            // Split on new lines
+                            String rvioPackages[] = response.split("\\r?\\n");
+                            for (String rvioPack : rvioPackages) {
+                                mItemAdapter.add(new IOPackageViewItem(rvioPack));
                             }
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.d(Constants.TAG, error.getLocalizedMessage());
-                }
-            });
+                    }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
 
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
@@ -179,16 +171,12 @@ public class MainFragment extends Fragment {
 
         //configure our fastAdapter
         mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
-            handlePackageClick(v, item);
+            if (v != null) {
+                item.getPackageItem().install(v.getContext());
+            }
             return false;
         });
     }
-
-    private void handlePackageClick(final View v, final IOPackageViewItem item) {
-        item.getPackageItem().install(v.getContext());
-    }
-
-
 
     public void checkForUpdates(){
         final String localVersion = getLocalGameVersion();

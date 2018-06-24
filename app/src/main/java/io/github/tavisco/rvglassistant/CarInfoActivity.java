@@ -57,20 +57,20 @@ public class CarInfoActivity extends AppCompatActivity {
         mTitlesContainer = findViewById(R.id.activity_detail_titles);
 
         // Define toolbar as the shared element
-        final Toolbar toolbar = (Toolbar) findViewById(R.id.activity_detail_toolbar);
+        final Toolbar toolbar = findViewById(R.id.activity_detail_toolbar);
         setSupportActionBar(toolbar);
         //override text
         setTitle("");
 
         // Fab button
-        mFabButton = (ImageView) findViewById(R.id.activity_detail_fab);
+        mFabButton = findViewById(R.id.activity_detail_fab);
         mFabButton.setScaleX(0);
         mFabButton.setScaleY(0);
         mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_chart_bar));
         mFabButton.setOnClickListener(onFabButtonListener);
 
         // Fab share button
-        mFabShareButton = (ImageView) findViewById(R.id.activity_detail_fab_share);
+        mFabShareButton = findViewById(R.id.activity_detail_fab_share);
         mFabShareButton.setScaleX(0);
         mFabShareButton.setScaleY(0);
         mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_share_variant));
@@ -83,7 +83,7 @@ public class CarInfoActivity extends AppCompatActivity {
         car = carView.getCar();
 
         //get the imageHeader and set the coverImage
-        final ImageView image = (ImageView) findViewById(R.id.activity_detail_image);
+        final ImageView image = findViewById(R.id.activity_detail_image);
 
         image.setMinimumWidth(600);
 
@@ -213,7 +213,7 @@ public class CarInfoActivity extends AppCompatActivity {
         titleTV.setTextColor(titleTextColor);
         titleTV.setText(car.getName());
 
-        TextView subtitleTV = (TextView) mTitleContainer.findViewById(R.id.activity_detail_subtitle);
+        TextView subtitleTV = mTitleContainer.findViewById(R.id.activity_detail_subtitle);
         subtitleTV.setTextColor(titleTextColor);
         subtitleTV.setText("It's a car");
 

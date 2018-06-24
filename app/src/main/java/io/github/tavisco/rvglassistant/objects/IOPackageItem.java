@@ -206,10 +206,7 @@ public class IOPackageItem {
                 File zipFile = new File(getDownloadSavePath());
                 AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile, context, getName(), getRemoteVersion());
 
-                asyncUnzipFile.doInBackground();
-
-                //item.downloadCompleted(item.getViewHolder(v));
-                //item.setDownloadOngoing(false, item.getViewHolder(v));
+                asyncUnzipFile.execute();
             }
 
             @Override
