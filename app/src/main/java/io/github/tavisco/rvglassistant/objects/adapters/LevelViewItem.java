@@ -1,7 +1,6 @@
-package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
+package io.github.tavisco.rvglassistant.objects.adapters;
 
-import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -17,24 +16,23 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.objects.BaseItem;
-import io.github.tavisco.rvglassistant.objects.CarItem;
-import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.others.Constants;
+import io.github.tavisco.rvglassistant.objects.LevelItem;
 
 /**
- * Created by otavio.mpinheiro on 15/03/2018.
+ * Created by Tavisco on 14/03/2018.
  */
 
-public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolder> {
+public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.ViewHolder> {
 
-    public CarViewItem(CarItem car) {
-        this.car = car;
+    private LevelItem level;
+
+    public LevelItem getLevel() {
+        return level;
     }
 
-    private CarItem car;
-
-    public CarItem getCar() {
-        return car;
+    public LevelViewItem(LevelItem lvl) {
+        level = lvl;
     }
 
     /**
@@ -63,36 +61,35 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(CarViewItem.ViewHolder viewHolder, List<Object> payloads) {
+    public void bindView(@NonNull LevelViewItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        viewHolder.trackName.setText(car.getName());
-        //viewHolder.trackDescription.setText(carDiscription);
-        viewHolder.imageView.setImageBitmap(null);
+        viewHolder.trackName.setText(level.getName());
 
         //Load image
-        if (car.getImagePath() != null) {
-            File image = new File(car.getImagePath());
+        if (level.getImagePath() != null) {
+            File image = new File(level.getImagePath());
             if (image.isFile() && image.canRead()) {
-                Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
+                Glide.with(viewHolder.view.getContext()).load(level.getImagePath()).into(viewHolder.imageView);
             } else {
-                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
+                Glide.with(viewHolder.view.getContext()).load(Constants.LEVEL_PLACEHOLDER_IMAGE).into(viewHolder.imageView);
             }
-        } else {
-            Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
         }
+
+
     }
 
     @Override
-    public void unbindView(ViewHolder holder) {
+    public void unbindView(@NonNull ViewHolder holder) {
         super.unbindView(holder);
         holder.imageView.setImageDrawable(null);
         holder.trackName.setText(null);
         holder.trackDescription.setText(null);
     }
 
+    @NonNull
     @Override
-    public ViewHolder getViewHolder(View v) {
+    public ViewHolder getViewHolder(@NonNull View v) {
         return new ViewHolder(v);
     }
 
@@ -102,13 +99,13 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         protected FrameLayout view;
         @BindView(R.id.track_img)
-        protected ImageView imageView;
+        ImageView imageView;
         @BindView(R.id.tv_track_name)
-        protected TextView trackName;
+        TextView trackName;
         @BindView(R.id.tv_track_description)
-        protected TextView trackDescription;
+        TextView trackDescription;
 
-        public ViewHolder(View view) {
+        ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.view = (FrameLayout) view;

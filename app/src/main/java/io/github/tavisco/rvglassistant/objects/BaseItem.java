@@ -2,6 +2,8 @@ package io.github.tavisco.rvglassistant.objects;
 
 import java.io.File;
 
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
+
 /**
  * Created by Tavisco on 29/04/18.
  */

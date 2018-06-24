@@ -1,10 +1,7 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 
-import android.app.ActivityOptions;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -28,8 +25,7 @@ import java.util.Arrays;
 
 import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
+import io.github.tavisco.rvglassistant.objects.adapters.CarViewItem;
 import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**

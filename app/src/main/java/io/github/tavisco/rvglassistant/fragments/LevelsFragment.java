@@ -23,7 +23,7 @@ import java.util.Arrays;
 
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.TrackInfoActivity;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
+import io.github.tavisco.rvglassistant.objects.adapters.LevelViewItem;
 import io.github.tavisco.rvglassistant.utils.FindLevels;
 
 /**

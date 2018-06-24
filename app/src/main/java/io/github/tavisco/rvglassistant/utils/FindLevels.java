@@ -6,10 +6,10 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.ItemType;
+import io.github.tavisco.rvglassistant.others.Constants;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.objects.LevelItem;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.LevelViewItem;
+import io.github.tavisco.rvglassistant.objects.adapters.LevelViewItem;
 
 /**
  * Created by otavio.mpinheiro on 14/03/2018.

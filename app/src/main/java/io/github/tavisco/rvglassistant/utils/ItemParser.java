@@ -13,8 +13,8 @@ import java.util.stream.Stream;
 
 import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
-import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.ItemType;
+import io.github.tavisco.rvglassistant.others.Constants;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.objects.LevelItem;
 
 /**

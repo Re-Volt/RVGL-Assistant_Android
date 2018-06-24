@@ -1,6 +1,5 @@
-package io.github.tavisco.rvglassistant.objects.RecyclerViewItems;
+package io.github.tavisco.rvglassistant.objects.adapters;
 
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -16,23 +15,22 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.LevelItem;
+import io.github.tavisco.rvglassistant.objects.CarItem;
 
 /**
- * Created by Tavisco on 14/03/2018.
+ * Created by otavio.mpinheiro on 15/03/2018.
  */
 
-public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.ViewHolder> {
+public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolder> {
 
-    private LevelItem level;
-
-    public LevelItem getLevel() {
-        return level;
+    public CarViewItem(CarItem car) {
+        this.car = car;
     }
 
-    public LevelViewItem(LevelItem lvl) {
-        level = lvl;
+    private CarItem car;
+
+    public CarItem getCar() {
+        return car;
     }
 
     /**
@@ -61,35 +59,36 @@ public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.Vie
      * @param viewHolder the viewHolder of this item
      */
     @Override
-    public void bindView(@NonNull LevelViewItem.ViewHolder viewHolder, @NonNull List<Object> payloads) {
+    public void bindView(CarViewItem.ViewHolder viewHolder, List<Object> payloads) {
         super.bindView(viewHolder, payloads);
 
-        viewHolder.trackName.setText(level.getName());
+        viewHolder.trackName.setText(car.getName());
+        //viewHolder.trackDescription.setText(carDiscription);
+        viewHolder.imageView.setImageBitmap(null);
 
         //Load image
-        if (level.getImagePath() != null) {
-            File image = new File(level.getImagePath());
+        if (car.getImagePath() != null) {
+            File image = new File(car.getImagePath());
             if (image.isFile() && image.canRead()) {
-                Glide.with(viewHolder.view.getContext()).load(level.getImagePath()).into(viewHolder.imageView);
+                Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
             } else {
-                Glide.with(viewHolder.view.getContext()).load(Constants.LEVEL_PLACEHOLDER_IMAGE).into(viewHolder.imageView);
+                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
             }
+        } else {
+            Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
         }
-
-
     }
 
     @Override
-    public void unbindView(@NonNull ViewHolder holder) {
+    public void unbindView(ViewHolder holder) {
         super.unbindView(holder);
         holder.imageView.setImageDrawable(null);
         holder.trackName.setText(null);
         holder.trackDescription.setText(null);
     }
 
-    @NonNull
     @Override
-    public ViewHolder getViewHolder(@NonNull View v) {
+    public ViewHolder getViewHolder(View v) {
         return new ViewHolder(v);
     }
 
@@ -99,13 +98,13 @@ public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.Vie
     protected static class ViewHolder extends RecyclerView.ViewHolder {
         protected FrameLayout view;
         @BindView(R.id.track_img)
-        ImageView imageView;
+        protected ImageView imageView;
         @BindView(R.id.tv_track_name)
-        TextView trackName;
+        protected TextView trackName;
         @BindView(R.id.tv_track_description)
-        TextView trackDescription;
+        protected TextView trackDescription;
 
-        ViewHolder(View view) {
+        public ViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
             this.view = (FrameLayout) view;

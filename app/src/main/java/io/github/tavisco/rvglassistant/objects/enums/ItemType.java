@@ -1,4 +1,4 @@
-package io.github.tavisco.rvglassistant.objects;
+package io.github.tavisco.rvglassistant.objects.enums;
 
 /**
  * Created by Tavisco on 29/04/18.

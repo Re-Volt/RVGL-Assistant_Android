@@ -1,4 +1,4 @@
-package io.github.tavisco.rvglassistant.objects;
+package io.github.tavisco.rvglassistant.others;
 
 import android.os.Environment;
 

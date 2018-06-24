@@ -35,8 +35,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.github.tavisco.rvglassistant.objects.BaseItem;
-import io.github.tavisco.rvglassistant.objects.ItemType;
-import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
+import io.github.tavisco.rvglassistant.others.Constants;
 import io.github.tavisco.rvglassistant.utils.ItemParser;
 import io.github.tavisco.rvglassistant.utils.ItemTypeDeterminer;
 

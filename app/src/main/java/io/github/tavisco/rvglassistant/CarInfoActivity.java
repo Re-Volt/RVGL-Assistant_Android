@@ -23,8 +23,8 @@ import com.google.gson.Gson;
 import java.io.File;
 
 import io.github.tavisco.rvglassistant.objects.CarItem;
-import io.github.tavisco.rvglassistant.objects.Constants;
-import io.github.tavisco.rvglassistant.objects.RecyclerViewItems.CarViewItem;
+import io.github.tavisco.rvglassistant.others.Constants;
+import io.github.tavisco.rvglassistant.objects.adapters.CarViewItem;
 import io.github.tavisco.rvglassistant.others.CustomTransitionListener;
 import io.github.tavisco.rvglassistant.others.Others;
 import io.github.tavisco.rvglassistant.utils.Animations;

@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import io.github.tavisco.rvglassistant.fragments.CarsFragment;
 import io.github.tavisco.rvglassistant.fragments.MainFragment;
 import io.github.tavisco.rvglassistant.fragments.LevelsFragment;
-import io.github.tavisco.rvglassistant.objects.Constants;
+import io.github.tavisco.rvglassistant.others.Constants;
 
 public class MainActivity extends AppCompatActivity {
 
