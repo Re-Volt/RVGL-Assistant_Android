@@ -79,7 +79,7 @@ public class IOPackageItem {
 
     public String getLocalVersion() {
         if (localVersion.equals(ERROR_STRING)){
-            return "Not installed";
+            return "---";
         }
         return localVersion;
     }

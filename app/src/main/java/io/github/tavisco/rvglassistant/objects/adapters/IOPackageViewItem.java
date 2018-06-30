@@ -81,18 +81,6 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
             TextView tvPackageLocalVersion;
         @BindView(R.id.tv_package_last_version)
             TextView tvPackageLastVersion;
-        @BindView(R.id.lnLyt_package_download)
-            LinearLayout lytPackageDownload;
-        @BindView(R.id.tv_package_download_speed)
-            TextView tvDownloadSpeed;
-        @BindView(R.id.tv_package_download_status)
-            TextView tvDownloadStatus;
-        @BindView(R.id.tv_package_download_progress)
-            TextView tvDownloadProgress;
-        @BindView(R.id.tv_package_time_remaining)
-            TextView tvTimeRemaining;
-        @BindView(R.id.bar_package_progress)
-            ProgressBar barDownloadProgress;
         @BindView(R.id.card_package)
             CardView cardView;
 
