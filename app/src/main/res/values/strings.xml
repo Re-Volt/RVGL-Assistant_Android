@@ -116,4 +116,6 @@
     <string name="dialog_positive_text">Ok</string>
     <string name="package_local_version">Local: %s</string>
     <string name="package_IO_version">I/O: %s</string>
+    <string name="storage_permission_denied_dialog_title">Storage permission request</string>
+    <string name="storage_permission_denied_dialog_feedback">The app will not work properly until you accept the permission request</string>
 </resources>

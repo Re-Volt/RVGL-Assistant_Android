@@ -29,7 +29,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:palette-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.mikepenz:fastadapter:3.2.7@aar'
@@ -51,4 +51,9 @@ dependencies {
     implementation 'com.github.AnyChart:AnyChart-Android:0.1.9'
     implementation "com.tonyodev.fetch2:fetch2:2.1.0-RC7"
     implementation "com.mikepenz:materialize:1.1.2@aar"
+    implementation("com.github.hotchemi:permissionsdispatcher:3.3.1") {
+        // if you don't use android.app.Fragment you can exclude support for them
+        exclude module: "support-v13"
+    }
+    annotationProcessor "com.github.hotchemi:permissionsdispatcher-processor:3.3.1"
 }

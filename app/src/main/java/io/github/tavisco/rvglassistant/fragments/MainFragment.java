@@ -1,5 +1,6 @@
 package io.github.tavisco.rvglassistant.fragments;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -18,10 +19,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mikepenz.fastadapter.FastAdapter;
@@ -42,6 +42,9 @@ import butterknife.OnClick;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.adapters.IOPackageViewItem;
 import io.github.tavisco.rvglassistant.others.Constants;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.RuntimePermissions;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -50,6 +53,7 @@ import io.github.tavisco.rvglassistant.others.Constants;
  * Use the {@link MainFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
+@RuntimePermissions
 public class MainFragment extends Fragment {
 
     // =-=-=-= Bindings =-=-=-=
@@ -75,8 +79,6 @@ public class MainFragment extends Fragment {
 
     // =-=-=-= Items/Variables =-=-=-=
     boolean updateAvaiable = false;
-
-
 
 
     public MainFragment() {
@@ -127,12 +129,18 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        checkForUpdates();
-        createPackagesList();
+        //checkForUpdates();
+        MainFragmentPermissionsDispatcher.checkForUpdatesWithPermissionCheck(this);
     }
 
-    private void createPackagesList() {
-        Log.d(Constants.TAG, "createPackagesList: CRIADO");
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        MainFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    public void createPackagesList() {
         //create our ItemAdapter which will host our items
         mItemAdapter = new ItemAdapter<>();
 
@@ -178,6 +186,7 @@ public class MainFragment extends Fragment {
         });
     }
 
+    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
     public void checkForUpdates(){
         final String localVersion = getLocalGameVersion();
 
@@ -196,23 +205,17 @@ public class MainFragment extends Fragment {
 
                 // Request a string response from the provided URL.
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                // Need to substring the version to not get garbage
-                                compareWithLocalVersion(localVersion ,response.substring(0, 7));
-                            }
-                        }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(Constants.TAG, error.getLocalizedMessage());
-                    }
-                });
+                        response -> {
+                            // Need to substring the version to not get garbage
+                            compareWithLocalVersion(localVersion ,response.substring(0, 7));
+                        }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
 
                 // Add the request to the RequestQueue.
                 queue.add(stringRequest);
             }
         }
+        // Temporarily here 'cause permissions
+        createPackagesList();
     }
 
     public String getLocalGameVersion(){
@@ -293,4 +296,16 @@ public class MainFragment extends Fragment {
         }
     }
 
+    @OnPermissionDenied({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
+    void onStorageDenied() {
+        Context ctx = getContext();
+
+        if (ctx != null){
+            new MaterialDialog.Builder(ctx)
+                    .title(R.string.storage_permission_denied_dialog_title)
+                    .content(R.string.storage_permission_denied_dialog_feedback)
+                    .positiveText(android.R.string.ok)
+                    .show();
+        }
+    }
 }
