@@ -9,7 +9,7 @@ This repository contains the code for the RVGL Assistant app for Android.
 
 | Install cars and levels from *.zip and *.7z files right after downloading it | Check for updates (Game and installed I/O packs) | Install I/O packs on the fly | View levels and cars (and their attributes! - WIP)|
 | :-: | :-:|:-:|:-:|
-|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_1.png)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_2.png)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_3.png)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_4.png)
+|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_1.jpg)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_2.jpg)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_3.jpg)|![Icon](https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/Images/PS_4.jpg)
 
 
 ---
