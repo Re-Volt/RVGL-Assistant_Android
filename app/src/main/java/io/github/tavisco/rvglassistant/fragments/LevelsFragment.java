@@ -3,8 +3,8 @@ package io.github.tavisco.rvglassistant.fragments;
 
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -12,18 +12,18 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
-import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.util.Arrays;
 
+import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.TrackInfoActivity;
 import io.github.tavisco.rvglassistant.objects.adapters.LevelViewItem;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.utils.FindLevels;
 
 /**
@@ -89,19 +89,27 @@ public class LevelsFragment extends Fragment {
         FindLevels.getAllLevels(mItemAdapter);
 
         //configure our fastAdapter
-        mFastAdapter.withOnClickListener(new OnClickListener<LevelViewItem>() {
-            @Override
-            public boolean onClick(View v, IAdapter<LevelViewItem> adapter, @NonNull LevelViewItem item, int position) {
-                Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
-                intent.putExtra("levelViewItem", (new Gson()).toJson(item));
+        mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
+            Intent intent = new Intent(getActivity(), CarInfoActivity.class);
+            intent.putExtra("itemJson", (new Gson()).toJson(item.getLevel()));
+            intent.putExtra("itemType", ItemType.LEVEL);
 
-                String transitionName = "cover";
-
-                ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
-                startActivity(intent, transitionActivityOptions.toBundle());
-
-                return false;
+            ImageView coverImage = v.findViewById(R.id.track_img);
+            if (coverImage == null) {
+                coverImage = ((View) v.getParent()).findViewById(R.id.track_img);
             }
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                if (coverImage.getParent() != null) {
+                    ((ViewGroup) coverImage.getParent()).setTransitionGroup(false);
+                }
+            }
+
+            // Setup the transition to the detail activity
+            ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, "cover");
+            startActivity(intent, transitionActivityOptions.toBundle());
+
+            return false;
         });
     }
 

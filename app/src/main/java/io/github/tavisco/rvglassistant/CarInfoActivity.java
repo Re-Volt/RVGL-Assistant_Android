@@ -22,18 +22,24 @@ import com.google.gson.Gson;
 
 import java.io.File;
 
+import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
+import io.github.tavisco.rvglassistant.objects.LevelItem;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.others.Constants;
-import io.github.tavisco.rvglassistant.objects.adapters.CarViewItem;
+import io.github.tavisco.rvglassistant.others.CustomAnimatorListener;
 import io.github.tavisco.rvglassistant.others.CustomTransitionListener;
 import io.github.tavisco.rvglassistant.others.Others;
 import io.github.tavisco.rvglassistant.utils.Animations;
-import io.github.tavisco.rvglassistant.others.CustomAnimatorListener;
 
 //https://github.com/AnyChart/AnyChart-Android
 public class CarInfoActivity extends AppCompatActivity {
-    CarViewItem carView = null;
-    CarItem car = null;
+    BaseItem baseItem;
+    CarItem carItem;
+    LevelItem levelItem;
+    ItemType itemType;
+
+    private String imgPath = "";
 
     private static final int ANIMATION_DURATION_SHORT = 150;
     private static final int ANIMATION_DURATION_MEDIUM = 300;
@@ -74,11 +80,18 @@ public class CarInfoActivity extends AppCompatActivity {
         mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_share_variant));
         mFabShareButton.setOnClickListener(onFabShareButtonListener);
 
-
         Intent intent = getIntent();
-        String jsonTrack = intent.getStringExtra("carViewItem");
-        carView = new Gson().fromJson(jsonTrack, CarViewItem.class);
-        car = carView.getCar();
+        String jsonItem = intent.getStringExtra("itemJson");
+        itemType = (ItemType) intent.getSerializableExtra("itemType");
+        if (itemType == ItemType.LEVEL){
+            levelItem = new Gson().fromJson(jsonItem, LevelItem.class);
+            imgPath = levelItem.getImagePath();
+            baseItem = levelItem;
+        } else if (itemType == ItemType.CAR){
+            carItem = new Gson().fromJson(jsonItem, CarItem.class);
+            imgPath = carItem.getImagePath();
+            baseItem = carItem;
+        }
 
         //get the imageHeader and set the coverImage
         final ImageView image = findViewById(R.id.activity_detail_image);
@@ -88,10 +101,10 @@ public class CarInfoActivity extends AppCompatActivity {
         //Load image
         Bitmap carImg = null;
         boolean imageSetted = false;
-        if (car.getImagePath() != null) {
-            File imgFile = new File(car.getImagePath());
+        if (imgPath != null && !imgPath.isEmpty()) {
+            File imgFile = new File(imgPath);
             if (imgFile.isFile() && imgFile.canRead()) {
-                carImg = BitmapFactory.decodeFile(car.getImagePath());
+                carImg = BitmapFactory.decodeFile(imgPath);
                 imageSetted = true;
             }
         }
@@ -123,7 +136,7 @@ public class CarInfoActivity extends AppCompatActivity {
         if (carImg != null) {
             palette = Palette.from(carImg).generate();
 
-            Palette.Swatch s = palette.getVibrantSwatch();
+            Palette.Swatch s = palette.getDominantSwatch();
             if (s == null) {
                 s = palette.getDarkVibrantSwatch();
             }
@@ -192,11 +205,12 @@ public class CarInfoActivity extends AppCompatActivity {
 
         TextView titleTV = mTitleContainer.findViewById(R.id.activity_detail_title);
         titleTV.setTextColor(titleTextColor);
-        titleTV.setText(car.getName());
+        titleTV.setText(baseItem.getName());
 
         TextView subtitleTV = mTitleContainer.findViewById(R.id.activity_detail_subtitle);
         subtitleTV.setTextColor(titleTextColor);
-        subtitleTV.setText("It's a car");
+
+        subtitleTV.setText(String.format("It's a %s", itemType.getTypeText()));
 
         ((TextView) mTitleContainer.findViewById(R.id.activity_detail_subtitle))
                 .setTextColor(titleTextColor);

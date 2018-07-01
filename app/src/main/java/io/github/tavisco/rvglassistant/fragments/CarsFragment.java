@@ -4,7 +4,6 @@ package io.github.tavisco.rvglassistant.fragments;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
@@ -17,15 +16,14 @@ import android.widget.ImageView;
 
 import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
-import com.mikepenz.fastadapter.IAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
-import com.mikepenz.fastadapter.listeners.OnClickListener;
 
 import java.util.Arrays;
 
 import io.github.tavisco.rvglassistant.CarInfoActivity;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.adapters.CarViewItem;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.utils.FindCars;
 
 /**
@@ -80,8 +78,6 @@ public class CarsFragment extends Fragment {
 
         //create our FastAdapter which will manage everything
         mFastAdapter = FastAdapter.with(Arrays.asList(mItemAdapter));
-        mFastAdapter.withSelectable(true);
-        mFastAdapter.withMultiSelect(true);
         mFastAdapter.withSelectOnLongClick(false);
 
         //configure our fastAdapter
@@ -93,30 +89,27 @@ public class CarsFragment extends Fragment {
         FindCars.getAllCars(mItemAdapter);
 
         //configure our fastAdapter
-        mFastAdapter.withOnClickListener(new OnClickListener<CarViewItem>() {
-            @Override
-            public boolean onClick(View v, IAdapter<CarViewItem> adapter, @NonNull CarViewItem item, int position) {
-                Intent intent = new Intent(getActivity(), CarInfoActivity.class);
-                intent.putExtra("carViewItem", (new Gson()).toJson(item));
+        mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
+            Intent intent = new Intent(getActivity(), CarInfoActivity.class);
+            intent.putExtra("itemJson", (new Gson()).toJson(item.getCar()));
+            intent.putExtra("itemType", ItemType.CAR);
 
-
-                ImageView coverImage = v.findViewById(R.id.track_img);
-                if (coverImage == null) {
-                    coverImage = ((View) v.getParent()).findViewById(R.id.track_img);
-                }
-
-                if (Build.VERSION.SDK_INT >= 21) {
-                    if (coverImage.getParent() != null) {
-                        ((ViewGroup) coverImage.getParent()).setTransitionGroup(false);
-                    }
-                }
-
-                // Setup the transition to the detail activity
-                ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverImage, "cover");
-                startActivity(intent, options.toBundle());
-
-                return false;
+            ImageView coverImage = v.findViewById(R.id.track_img);
+            if (coverImage == null) {
+                coverImage = ((View) v.getParent()).findViewById(R.id.track_img);
             }
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                if (coverImage.getParent() != null) {
+                    ((ViewGroup) coverImage.getParent()).setTransitionGroup(false);
+                }
+            }
+
+            // Setup the transition to the detail activity
+            ActivityOptionsCompat options = ActivityOptionsCompat.makeSceneTransitionAnimation(getActivity(), coverImage, "cover");
+            startActivity(intent, options.toBundle());
+
+            return false;
         });
     }
 
