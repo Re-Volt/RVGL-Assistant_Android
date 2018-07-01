@@ -95,7 +95,7 @@ public class LevelsFragment extends Fragment {
                 Intent intent = new Intent(getActivity(), TrackInfoActivity.class);
                 intent.putExtra("levelViewItem", (new Gson()).toJson(item));
 
-                String transitionName = "transi_track_img";
+                String transitionName = "cover";
 
                 ActivityOptions transitionActivityOptions = ActivityOptions.makeSceneTransitionAnimation(getActivity(), v, transitionName);
                 startActivity(intent, transitionActivityOptions.toBundle());

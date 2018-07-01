@@ -37,7 +37,6 @@ public class CarInfoActivity extends AppCompatActivity {
 
     private static final int ANIMATION_DURATION_SHORT = 150;
     private static final int ANIMATION_DURATION_MEDIUM = 300;
-    private static final int ANIMATION_DURATION_LONG = 450;
     private View mTitleContainer;
     private View mTitlesContainer;
 
