@@ -272,6 +272,7 @@ public class IOPackageItem {
             asyncDialog = new MaterialDialog.Builder(CTX)
                     .title("Unzipping files")
                     .content("Starting...")
+                    .cancelable(false)
                     .progress(true, 0)
                     .show();
         }
@@ -356,6 +357,7 @@ public class IOPackageItem {
             new MaterialDialog.Builder(CTX)
                     .title(title)
                     .content(message)
+                    .cancelable(false)
                     .positiveText("Ok")
                     .show();
         }

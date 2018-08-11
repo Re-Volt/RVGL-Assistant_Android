@@ -112,6 +112,7 @@ public class InstallActivity extends AppCompatActivity {
             dialog = new MaterialDialog.Builder(mContext)
                     .title("Unzipping file")
                     .content("Start unzipping")
+                    .cancelable(false)
                     .progress(true, 0)
                     .show();
         }
