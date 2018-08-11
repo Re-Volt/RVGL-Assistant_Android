@@ -207,7 +207,7 @@ public class MainFragment extends Fragment {
                 StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.RVGL_LAST_VERSION_LINK,
                         response -> {
                             // Need to substring the version to not get garbage
-                            compareWithLocalVersion(localVersion ,response.substring(0, 7));
+                            compareWithLocalVersion(localVersion, response.substring(0, 7));
                         }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
 
                 // Add the request to the RequestQueue.
@@ -256,22 +256,26 @@ public class MainFragment extends Fragment {
 
         }
 
-        Activity activity = getActivity();
-        if(!checkFailed && activity != null)
-            tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), localVersion));
-
         return localVersion;
     }
 
     public void compareWithLocalVersion(String localVersion, String lastVersion){
         Activity activity = getActivity();
         if (activity != null){
-            if (localVersion.equals("-1") || lastVersion.equals("-1")){
-                tvUpdateStatus.setText(R.string.main_error_getting_last_version);
-                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), getString(R.string.main_error_getting_last_version)));
+            if (localVersion.equals("-1")) {
+                tvUpdateStatus.setText(R.string.main_is_game_installed);
+                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), "---"));
+            } else {
+                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), localVersion));
+            }
+
+            if (lastVersion.equals("-1")){
                 tvLastVersion.setText(String.format(getString(R.string.main_last_version), getString(R.string.main_error_getting_last_version)));
             } else {
                 tvLastVersion.setText(String.format(getString(R.string.main_last_version), lastVersion));
+            }
+
+            if (!localVersion.equals("-1") && !lastVersion.equals("-1")){
                 if (localVersion.equals(lastVersion)){
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
                     tvUpdateStatus.setText(R.string.main_you_are_up_to_date);

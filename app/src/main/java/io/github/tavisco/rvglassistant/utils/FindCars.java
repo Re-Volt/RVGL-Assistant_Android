@@ -15,15 +15,17 @@ import io.github.tavisco.rvglassistant.objects.adapters.CarViewItem;
 
 public class FindCars {
 
-    public static void getAllCars(ItemAdapter<CarViewItem> itemAdapter) {
+    public static boolean getAllCars(ItemAdapter<CarViewItem> itemAdapter) {
 
         String path = Constants.PATH_RVGL + File.separator + "cars";
         File directory = new File(path);
         File[] files = directory.listFiles();
 
         if (!directory.isDirectory() || !directory.canRead() || files.length == 0) {
-            //TODO: Error while listing cars
-            //The app have storage permissions?
+            // TODO: Error while listing cars
+            // The app have storage permissions?
+            // The game is installed?
+            return false;
         }
 
         for (File carFile : files) {
@@ -37,5 +39,7 @@ public class FindCars {
                 itemAdapter.add(carView);
             }
         }
+
+        return true;
     }
 }

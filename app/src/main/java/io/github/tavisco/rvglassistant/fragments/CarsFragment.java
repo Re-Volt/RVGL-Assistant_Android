@@ -1,6 +1,7 @@
 package io.github.tavisco.rvglassistant.fragments;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.Gson;
 import com.mikepenz.fastadapter.FastAdapter;
 import com.mikepenz.fastadapter.adapters.ItemAdapter;
@@ -86,7 +88,19 @@ public class CarsFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 2));
         mRecyclerView.setAdapter(mFastAdapter);
 
-        FindCars.getAllCars(mItemAdapter);
+        boolean populated = FindCars.getAllCars(mItemAdapter);
+
+        if (!populated) {
+            if (view != null){
+                Context ctx = view.getContext();
+
+                new MaterialDialog.Builder(ctx)
+                        .title(R.string.warning)
+                        .content(R.string.cars_not_populated)
+                        .positiveText(R.string.dismiss)
+                        .show();
+            }
+        }
 
         //configure our fastAdapter
         mFastAdapter.withOnClickListener((v, adapter, item, position) -> {

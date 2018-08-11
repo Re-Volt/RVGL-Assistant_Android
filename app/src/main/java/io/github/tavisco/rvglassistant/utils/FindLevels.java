@@ -18,21 +18,19 @@ import io.github.tavisco.rvglassistant.objects.adapters.LevelViewItem;
 public class FindLevels {
 
 
-    public static List<LevelViewItem> getAllLevels(ItemAdapter<LevelViewItem> itemAdapter){
+    public static boolean getAllLevels(ItemAdapter<LevelViewItem> itemAdapter){
 
         List<String> dontShowTracks = new ArrayList<>();
         dontShowTracks.add("intro");
         dontShowTracks.add("frontend");
         dontShowTracks.add("stunts");
 
-        List<LevelViewItem> list = new ArrayList<>();
-
         String path = Constants.PATH_RVGL + File.separator + ItemType.LEVEL.getTypePath();
         File directory = new File(path);
         File[] files = directory.listFiles();
 
         if (!directory.isDirectory() || !directory.canRead() || files.length == 0){
-
+            return false;
         }
 
         boolean skip;
@@ -57,7 +55,8 @@ public class FindLevels {
                 itemAdapter.add(levelView);
             }
         }
-        return list;
+
+        return true;
     }
 
 }

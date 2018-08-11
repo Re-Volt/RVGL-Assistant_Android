@@ -113,9 +113,14 @@
     <string name="main_error_getting_last_version">Oops! Error!</string>
     <string name="main_you_are_up_to_date">You are up to date!</string>
     <string name="main_update_avaiable">Version %s is avaiable to download! Click here for more info.</string>
+    <string name="main_is_game_installed">Is the game installed?</string>
     <string name="dialog_positive_text">Ok</string>
     <string name="package_local_version">Local: %s</string>
     <string name="package_IO_version">I/O: %s</string>
     <string name="storage_permission_denied_dialog_title">Storage permission request</string>
     <string name="storage_permission_denied_dialog_feedback">The app will not work properly until you accept the permission request</string>
+    <string name="levels_not_populated">Couldn\'t find any levels! Is the game installed?</string>
+    <string name="cars_not_populated">Couldn\'t find any cars! Is the game installed?</string>
+    <string name="warning">Warning!</string>
+    <string name="dismiss">Dismiss</string>
 </resources>
