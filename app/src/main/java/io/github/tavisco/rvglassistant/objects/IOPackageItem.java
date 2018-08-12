@@ -29,6 +29,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import io.github.tavisco.rvglassistant.R;
+import io.github.tavisco.rvglassistant.fragments.MainFragment;
 import io.github.tavisco.rvglassistant.objects.enums.UpdateStatus;
 import io.github.tavisco.rvglassistant.others.Constants;
 import io.github.tavisco.rvglassistant.utils.DownloadUtils;
@@ -154,119 +155,134 @@ public class IOPackageItem {
         return ctx.getDrawable(R.drawable.ic_cloud);
     }
 
-    public void install(Context context) {
-        new MaterialDialog.Builder(context)
+    public void install(MainFragment frag) {
+
+        Context ctx = frag.getContext();
+
+        if (ctx != null){
+            new MaterialDialog.Builder(ctx)
                     .title("Download ".concat(getName()).concat("?"))
                     .content("Do you wish to download ".concat(getName()).concat(" pack?"))
                     .positiveText(R.string.agree)
                     .negativeText(R.string.disagree)
-                    .onPositive((dialog, which) -> downloadPackage(context))
+                    .onPositive((dialog, which) -> downloadPackage(frag))
                     .show();
+        }
+
+
     }
 
-    private void downloadPackage(Context context) {
-        MaterialDialog dialog = new MaterialDialog.Builder(context)
-                .title("Downloading " + getName())
-                .content("Starting...")
-                .progress(false, 100, false)
-                .cancelable(false)
-                .positiveText("Cancel")
-                .onPositive((dialog1, which) -> {
-                    mainFetch.cancel(getDownloadID());
-                    Log.d(Constants.TAG, "downloadPackage: CANCELED");
-                })
-                .show();
+    private void downloadPackage(MainFragment frag) {
+        Context context = frag.getContext();
+
+        if (context != null) {
+
+            MaterialDialog dialog = new MaterialDialog.Builder(context)
+                    .title("Downloading " + getName())
+                    .content("Starting...")
+                    .progress(false, 100, false)
+                    .cancelable(false)
+                    .positiveText("Cancel")
+                    .onPositive((dialog1, which) -> {
+                        mainFetch.cancel(getDownloadID());
+                        Log.d(Constants.TAG, "downloadPackage: CANCELED");
+                    })
+                    .show();
 
 
-        FetchConfiguration fetchConfiguration = new FetchConfiguration.Builder(context)
-                .setDownloadConcurrentLimit(3)
-                .build();
+            FetchConfiguration fetchConfiguration = new FetchConfiguration.Builder(context)
+                    .setDownloadConcurrentLimit(3)
+                    .build();
 
-        mainFetch = Fetch.Impl.getInstance(fetchConfiguration);
+            mainFetch = Fetch.Impl.getInstance(fetchConfiguration);
 
-        final Request request = new Request(getDownloadLink(), getDownloadSavePath());
-        request.setPriority(Priority.HIGH);
-        request.setNetworkType(NetworkType.WIFI_ONLY);
+            final Request request = new Request(getDownloadLink(), getDownloadSavePath());
+            request.setPriority(Priority.HIGH);
+            request.setNetworkType(NetworkType.WIFI_ONLY);
 
-        mainFetch.removeAll();
+            mainFetch.removeAll();
 
-        mainFetch.enqueue(request, updatedRequest -> {
-            //Request was successfully enqueued for download.
-            Log.d(Constants.TAG, "call: Started downloading");
-            setDownloadID(request.getId());
-        }, error -> {
-            //An error occurred enqueuing the request.
-            Log.d(Constants.TAG, "ERRO STARTING DOWNLOAD.");
-        });
+            mainFetch.enqueue(request, updatedRequest -> {
+                //Request was successfully enqueued for download.
+                Log.d(Constants.TAG, "call: Started downloading");
+                setDownloadID(request.getId());
+            }, error -> {
+                //An error occurred enqueuing the request.
+                Log.d(Constants.TAG, "ERRO STARTING DOWNLOAD.");
+            });
 
-        final FetchListener fetchListener = new AbstractFetchListener() {
+            final FetchListener fetchListener = new AbstractFetchListener() {
 
-            @Override
-            public void onCompleted(@NotNull Download download) {
-                mainFetch.removeListener(this);
-                mainFetch.close();
-                dialog.dismiss();
+                @Override
+                public void onCompleted(@NotNull Download download) {
+                    mainFetch.removeListener(this);
+                    mainFetch.close();
+                    dialog.dismiss();
 
-                File zipFile = new File(getDownloadSavePath());
-                AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile, context, getName(), getRemoteVersion());
+                    File zipFile = new File(getDownloadSavePath());
+                    AsyncUnzipFile asyncUnzipFile = new AsyncUnzipFile(zipFile, frag, getName(), getRemoteVersion());
 
-                asyncUnzipFile.execute();
-            }
-
-            @Override
-            public void onError(@NotNull Download download) {
-                final Error error = download.getError();
-                final Throwable throwable = error.getThrowable(); //can be null
-                if (error == Error.UNKNOWN && throwable != null) {
-                    Log.d(Constants.TAG, "Throwable error", throwable);
+                    asyncUnzipFile.execute();
                 }
-                mainFetch.removeListener(this);
-                mainFetch.close();
-                File zipFile = new File(getDownloadSavePath());
-                zipFile.delete();
-                //item.setDownloadOngoing(false, item.getViewHolder(v));
-            }
 
-            @Override
-            public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
-                if (request.getId() == download.getId()) {
-                    dialog.setProgress(download.getProgress());
-                    dialog.setContent(String.format("Downloading at %s\nRemaining: %s",
-                            DownloadUtils.getDownloadSpeedString(context, downloadedBytesPerSecond),
-                            DownloadUtils.getETAString(context, etaInMilliSeconds)));
-                    //item.updateDownloadView(v.getContext(), item.getViewHolder(v), etaInMilliSeconds, downloadedBytesPerSecond, download.getProgress(), download.getStatus().toString());
+                @Override
+                public void onError(@NotNull Download download) {
+                    final Error error = download.getError();
+                    final Throwable throwable = error.getThrowable(); //can be null
+                    if (error == Error.UNKNOWN && throwable != null) {
+                        Log.d(Constants.TAG, "Throwable error", throwable);
+                    }
+                    mainFetch.removeListener(this);
+                    mainFetch.close();
+                    File zipFile = new File(getDownloadSavePath());
+                    zipFile.delete();
+                    //item.setDownloadOngoing(false, item.getViewHolder(v));
                 }
-            }
+
+                @Override
+                public void onProgress(@NotNull Download download, long etaInMilliSeconds, long downloadedBytesPerSecond) {
+                    if (request.getId() == download.getId()) {
+                        dialog.setProgress(download.getProgress());
+                        dialog.setContent(String.format("Downloading at %s\nRemaining: %s",
+                                DownloadUtils.getDownloadSpeedString(context, downloadedBytesPerSecond),
+                                DownloadUtils.getETAString(context, etaInMilliSeconds)));
+                        //item.updateDownloadView(v.getContext(), item.getViewHolder(v), etaInMilliSeconds, downloadedBytesPerSecond, download.getProgress(), download.getStatus().toString());
+                    }
+                }
 
 
-            @Override
-            public void onCancelled(@NotNull Download download) {
-                Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
-                File zipFile = new File(getDownloadSavePath());
-                zipFile.delete();
-                //item.setDownloadOngoing(false, item.getViewHolder(v));
-            }
-        };
+                @Override
+                public void onCancelled(@NotNull Download download) {
+                    Log.d(Constants.TAG, "onCancelled: DOWNLOAD CANCELADO");
+                    File zipFile = new File(getDownloadSavePath());
+                    zipFile.delete();
+                    //item.setDownloadOngoing(false, item.getViewHolder(v));
+                }
+            };
 
-        mainFetch.addListener(fetchListener);
+            mainFetch.addListener(fetchListener);
+        }
     }
 
     private static class AsyncUnzipFile extends AsyncTask<Void, String, Boolean> {
         private final File ZIP_FILE;
-        private final Context CTX;
+        private Context CTX;
         private boolean success = false;
         private final String PACKAGE_NAME;
         private final String PACKGE_VERSION;
         private MaterialDialog asyncDialog;
+        private final MainFragment FRAG;
 
-        public AsyncUnzipFile(File ZIP_FILE, Context ctx, String PACKAGE_NAME, String PACKGE_VERSION) {
+        public AsyncUnzipFile(File ZIP_FILE, MainFragment frag, String PACKAGE_NAME, String PACKGE_VERSION) {
             this.ZIP_FILE = ZIP_FILE;
-            this.CTX = ctx;
+            Context context = frag.getContext();
+            if (context != null) {
+                this.CTX = frag.getContext();
+            }
             this.PACKAGE_NAME = PACKAGE_NAME;
             this.PACKGE_VERSION = PACKGE_VERSION;
+            this.FRAG = frag;
         }
-
-        @Override
         protected void onPreExecute() {
             super.onPreExecute();
             asyncDialog = new MaterialDialog.Builder(CTX)
@@ -349,6 +365,8 @@ public class IOPackageItem {
             if (success){
                 title = "Success!";
                 message = String.format("%s was installed with success! Enjoy!", PACKAGE_NAME);
+                FRAG.populateRecycler();
+
             } else {
                 title = "Er... An error ocurred!";
                 message = String.format("An error ocurred while installing %s", PACKAGE_NAME);

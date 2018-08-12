@@ -155,6 +155,20 @@ public class MainFragment extends Fragment {
         mRecyclerView.setLayoutManager(new GridLayoutManager(this.getContext(), 1));
         mRecyclerView.setAdapter(mFastAdapter);
 
+        populateRecycler();
+
+        //configure our fastAdapter
+        mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
+            if (v != null) {
+                item.getPackageItem().install(this);
+            }
+            return false;
+        });
+    }
+
+    public void populateRecycler() {
+        mItemAdapter.clear();
+
         Context ctx = this.getContext();
 
         if (ctx != null){
@@ -176,14 +190,6 @@ public class MainFragment extends Fragment {
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
         }
-
-        //configure our fastAdapter
-        mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
-            if (v != null) {
-                item.getPackageItem().install(v.getContext());
-            }
-            return false;
-        });
     }
 
     @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
