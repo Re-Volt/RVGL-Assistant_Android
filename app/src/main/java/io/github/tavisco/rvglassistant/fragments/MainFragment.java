@@ -41,6 +41,7 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.adapters.IOPackageViewItem;
+import io.github.tavisco.rvglassistant.objects.enums.UpdateStatus;
 import io.github.tavisco.rvglassistant.others.Constants;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnPermissionDenied;
@@ -74,6 +75,8 @@ public class MainFragment extends Fragment {
     TextView tvAppInstalledVersion;
     @BindView(R.id.tv_main_app_lastVersion)
     TextView tvAppLastVersion;
+    @BindView(R.id.card_main_appUpdateVersions)
+    CardView cardAppUpdateVersions;
 
 
     // =-=-=-= Recycler =-=-=-=
@@ -83,7 +86,8 @@ public class MainFragment extends Fragment {
 
 
     // =-=-=-= Items/Variables =-=-=-=
-    boolean updateAvaiable = false;
+    boolean gameUpdateAvaiable = false;
+    UpdateStatus appUpdateStatus = UpdateStatus.NOT_INSTALLED;
 
 
     public MainFragment() {
@@ -143,8 +147,39 @@ public class MainFragment extends Fragment {
     }
 
     private void checkForAppUpdates() {
+        // TODO: Click on this card opens github page, and a dialog to alert the update
+
         tvAppInstalledVersion.setText(String.format(getString(R.string.main_installed_version),
                 BuildConfig.VERSION_NAME));
+
+        Context ctx = this.getContext();
+
+        if (ctx != null) {
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(this.getContext());
+
+            // Request a string response from the rvioRequest URL.
+            StringRequest stringRequest = new StringRequest(Request.Method.GET, Constants.APP_LAST_VERSION_LINK,
+                    response -> {
+                        if (!response.isEmpty()){
+                            String appLastVersion = response.substring(0, 8);
+                            tvAppLastVersion.setText(String.format(getString(R.string.main_app_last_version), appLastVersion));
+
+                            if (appLastVersion.equals(BuildConfig.VERSION_NAME)){
+                                appUpdateStatus = UpdateStatus.UPDATED;
+                            } else {
+                                appUpdateStatus = UpdateStatus.UPDATE_AVAIABLE;
+                                cardAppUpdateVersions.setCardBackgroundColor(ctx.getResources().getColor(R.color.newVersionRed));
+                            }
+                        }
+                    }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
+
+            // Add the request to the RequestQueue.
+            queue.add(stringRequest);
+        }
+
+
+
     }
 
     @Override
@@ -303,7 +338,7 @@ public class MainFragment extends Fragment {
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
                     tvUpdateStatus.setText(String.format(getString(R.string.main_update_avaiable), lastVersion));
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
-                    updateAvaiable = true;
+                    gameUpdateAvaiable = true;
                 }
             }
         }
@@ -311,7 +346,7 @@ public class MainFragment extends Fragment {
 
     @OnClick(R.id.card_main_updateStatus)
     public void clickCardUpdate(){
-        if (updateAvaiable){
+        if (gameUpdateAvaiable){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.RVGL_ANDROID_APK_LINK));
             startActivity(browserIntent);
         } else {

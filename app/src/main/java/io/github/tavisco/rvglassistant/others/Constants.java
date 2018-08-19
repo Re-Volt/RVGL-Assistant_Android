@@ -23,6 +23,7 @@ public class Constants {
     public static final String RVIO_AVAIABLE_PACKAGES_LINK = "http://distribute.re-volt.io/packages.txt";
     public static final String RVIO_ASSETS_LINK = "https://distribute.re-volt.io/assets/";
     public static final String RVIO_DOWNLOAD_PACKS_LINK = "https://distribute.re-volt.io/packs/";
+    public static final String APP_LAST_VERSION_LINK = "https://raw.githubusercontent.com/Tavisco/RVGL-Assistant_Android/master/last_version.txt";
 
     //Files
     public static final String RVGL_CURRENT_VERSION_TXT = "rvgl_version.txt";
