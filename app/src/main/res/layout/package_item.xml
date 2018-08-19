@@ -5,7 +5,9 @@
     android:id="@+id/card_package"
     android:layout_width="match_parent"
     android:layout_height="72dp"
-    android:layout_margin="8dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginStart="8dp"
+    android:layout_marginEnd="8dp"
     android:orientation="vertical"
     tools:ignore="MissingPrefix">
 
@@ -19,7 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal">
-
 
             <ImageView
                 android:id="@+id/img_package_updateStatus"
@@ -82,14 +83,6 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/tv_package_local_version"
                 tools:text="I/O: 18.0429" />
-
-
-
         </android.support.constraint.ConstraintLayout>
-
-
-
-
-
     </FrameLayout>
 </android.support.v7.widget.CardView>

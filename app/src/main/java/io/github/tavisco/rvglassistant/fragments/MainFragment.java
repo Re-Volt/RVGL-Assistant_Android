@@ -45,6 +45,7 @@ import io.github.tavisco.rvglassistant.others.Constants;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.OnPermissionDenied;
 import permissions.dispatcher.RuntimePermissions;
+import io.github.tavisco.rvglassistant.BuildConfig;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -59,9 +60,9 @@ public class MainFragment extends Fragment {
     // =-=-=-= Bindings =-=-=-=
     @BindView(R.id.card_main_updateStatus)
     CardView cardUpdate;
-    @BindView(R.id.tv_main_installedVersion)
+    @BindView(R.id.tv_main_game_installedVersion)
     TextView tvInstalledVersion;
-    @BindView(R.id.tv_main_lastVersion)
+    @BindView(R.id.tv_main_game_lastVersion)
     TextView tvLastVersion;
     @BindView(R.id.tv_main_updateStatus)
     TextView tvUpdateStatus;
@@ -69,6 +70,10 @@ public class MainFragment extends Fragment {
     ImageView imgUpdateStatus;
     @BindView(R.id.recycler_main_packages)
     RecyclerView mRecyclerView;
+    @BindView(R.id.tv_main_app_installedVersion)
+    TextView tvAppInstalledVersion;
+    @BindView(R.id.tv_main_app_lastVersion)
+    TextView tvAppLastVersion;
 
 
     // =-=-=-= Recycler =-=-=-=
@@ -129,8 +134,17 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        //checkForUpdates();
+        // checkForUpdates();
         MainFragmentPermissionsDispatcher.checkForUpdatesWithPermissionCheck(this);
+        // createPackagesList();
+        MainFragmentPermissionsDispatcher.createPackagesListWithPermissionCheck(this);
+
+        checkForAppUpdates();
+    }
+
+    private void checkForAppUpdates() {
+        tvAppInstalledVersion.setText(String.format(getString(R.string.main_installed_version),
+                BuildConfig.VERSION_NAME));
     }
 
     @Override
@@ -140,6 +154,7 @@ public class MainFragment extends Fragment {
         MainFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
+    @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
     public void createPackagesList() {
         //create our ItemAdapter which will host our items
         mItemAdapter = new ItemAdapter<>();
@@ -200,7 +215,7 @@ public class MainFragment extends Fragment {
         if(activity != null){
             cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
             tvUpdateStatus.setText(R.string.main_checking_updates);
-            tvLastVersion.setText(String.format(getString(R.string.main_last_version), getString(R.string.main_checking)));
+            tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), getString(R.string.main_checking)));
             imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_sync));
 
             Context ctx = this.getContext();
@@ -220,8 +235,6 @@ public class MainFragment extends Fragment {
                 queue.add(stringRequest);
             }
         }
-        // Temporarily here 'cause permissions
-        createPackagesList();
     }
 
     public String getLocalGameVersion(){
@@ -276,9 +289,9 @@ public class MainFragment extends Fragment {
             }
 
             if (lastVersion.equals("-1")){
-                tvLastVersion.setText(String.format(getString(R.string.main_last_version), getString(R.string.main_error_getting_last_version)));
+                tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), getString(R.string.main_error_getting_last_version)));
             } else {
-                tvLastVersion.setText(String.format(getString(R.string.main_last_version), lastVersion));
+                tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), lastVersion));
             }
 
             if (!localVersion.equals("-1") && !lastVersion.equals("-1")){

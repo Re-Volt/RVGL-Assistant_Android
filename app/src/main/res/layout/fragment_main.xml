@@ -8,7 +8,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:layout_margin="16dp">
+        android:layout_margin="8dp">
 
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
@@ -39,15 +39,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:weightSum="10"
-            android:layout_marginTop="16dp">
+            android:weightSum="12"
+            android:layout_marginTop="8dp">
 
             <android.support.v7.widget.CardView
                 android:id="@+id/card_main_updateStatus"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="5"
-                android:layout_marginEnd="16dp">
+                android:layout_weight="4"
+                android:layout_marginEnd="8dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -77,29 +77,72 @@
             <android.support.v7.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="5">
+                android:layout_weight="4"
+                android:layout_marginEnd="8dp">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
                     android:layout_margin="8dp"
-                    android:layout_gravity="start|center">
+                    android:layout_gravity="start">
 
                     <TextView
-                        android:id="@+id/tv_main_installedVersion"
+                        android:id="@+id/tv_main_game_version_title"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="RVGL Local: ---"/>
+                        android:text="RVGL version"
+                        android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tv_main_lastVersion"
+                        android:id="@+id/tv_main_game_installedVersion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="RVGL I/O: ---"/>
+                        android:layout_marginTop="2dp"
+                        android:text="Local:\n  ---"/>
 
+                    <TextView
+                        android:id="@+id/tv_main_game_lastVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="I/O: \n  ---"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="4">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_margin="8dp"
+                    android:layout_gravity="start">
+
+                    <TextView
+                        android:id="@+id/tv_main_app_version_title"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="App version"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tv_main_app_installedVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Local:\n  ---"/>
+
+                    <TextView
+                        android:id="@+id/tv_main_app_lastVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Github:\n  ---"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView
