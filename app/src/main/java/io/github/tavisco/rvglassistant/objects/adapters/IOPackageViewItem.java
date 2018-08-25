@@ -6,14 +6,10 @@ import android.support.v7.widget.CardView;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.mikepenz.fastadapter.FastAdapter;
@@ -24,9 +20,9 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
+import io.github.tavisco.rvglassistant.objects.IOPackageItem;
 import io.github.tavisco.rvglassistant.objects.enums.UpdateStatus;
 import io.github.tavisco.rvglassistant.others.Constants;
-import io.github.tavisco.rvglassistant.objects.IOPackageItem;
 
 /**
  * Created by Tavisco on 25/05/18.
@@ -126,6 +122,7 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
                         }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
 
                 // Add the request to the RequestQueue.
+                stringRequest.setShouldCache(false);
                 queue.add(stringRequest);
             }
         }
