@@ -92,6 +92,7 @@
                     android:background="@drawable/animated_ripple"
                     android:elevation="3dp"
                     android:transitionName="fab"
+                    android:visibility="gone"
                     />
 
                 <ImageButton
@@ -107,6 +108,7 @@
                     android:background="@drawable/animated_ripple"
                     android:elevation="4dp"
                     android:transitionName="fab"
+                    android:visibility="gone"
                     />
 
         </RelativeLayout>

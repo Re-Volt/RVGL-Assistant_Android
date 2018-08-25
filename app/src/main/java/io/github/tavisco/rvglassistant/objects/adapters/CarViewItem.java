@@ -50,7 +50,7 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
      */
     @Override
     public int getLayoutRes() {
-        return R.layout.track_item;
+        return R.layout.item_on_recycler;
     }
 
     /**

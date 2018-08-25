@@ -8,8 +8,8 @@
     <string name="title_activity_car_info">Car Info</string>
     <string name="channel_name">RVGL Butler downloads</string>
     <string name="channel_description">Used to show info\'s about RVGL Butler downloads</string>
-    <string name="agree">Yes</string>
-    <string name="disagree">No</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
     <string name="download_eta_sec">%1$ds left</string>
     <string name="download_eta_min">%1$dm %2$ds left</string>
     <string name="download_eta_hrs">%1$dh %2$dm %3$ds left</string>

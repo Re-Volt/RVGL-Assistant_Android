@@ -52,7 +52,7 @@ public class LevelViewItem extends AbstractItem<LevelViewItem, LevelViewItem.Vie
      */
     @Override
     public int getLayoutRes() {
-        return R.layout.track_item;
+        return R.layout.item_on_recycler;
     }
 
     /**

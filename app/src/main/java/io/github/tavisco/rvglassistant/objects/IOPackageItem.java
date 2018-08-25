@@ -163,8 +163,8 @@ public class IOPackageItem {
             new MaterialDialog.Builder(ctx)
                     .title("Download ".concat(getName()).concat("?"))
                     .content("Do you wish to download ".concat(getName()).concat(" pack?"))
-                    .positiveText(R.string.agree)
-                    .negativeText(R.string.disagree)
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no)
                     .onPositive((dialog, which) -> downloadPackage(frag))
                     .show();
         }

@@ -86,8 +86,8 @@ public class MainFragment extends Fragment {
 
 
     // =-=-=-= Items/Variables =-=-=-=
-    boolean gameUpdateAvaiable = false;
-    UpdateStatus appUpdateStatus = UpdateStatus.NOT_INSTALLED;
+    UpdateStatus gameUpdateStatus = UpdateStatus.ERROR;
+    UpdateStatus appUpdateStatus = UpdateStatus.ERROR;
 
 
     public MainFragment() {
@@ -138,8 +138,8 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        // checkForUpdates();
-        MainFragmentPermissionsDispatcher.checkForUpdatesWithPermissionCheck(this);
+        // checkForGameUpdates();
+        MainFragmentPermissionsDispatcher.checkForGameUpdatesWithPermissionCheck(this);
         // createPackagesList();
         MainFragmentPermissionsDispatcher.createPackagesListWithPermissionCheck(this);
 
@@ -147,8 +147,6 @@ public class MainFragment extends Fragment {
     }
 
     private void checkForAppUpdates() {
-        // TODO: Click on this card opens github page, and a dialog to alert the update
-
         tvAppInstalledVersion.setText(String.format(getString(R.string.main_installed_version),
                 BuildConfig.VERSION_NAME));
 
@@ -170,6 +168,13 @@ public class MainFragment extends Fragment {
                             } else {
                                 appUpdateStatus = UpdateStatus.UPDATE_AVAIABLE;
                                 cardAppUpdateVersions.setCardBackgroundColor(ctx.getResources().getColor(R.color.newVersionRed));
+                                new MaterialDialog.Builder(ctx)
+                                        .title("Update avaiable!")
+                                        .content("There's a new version of the APP avaiable!\nDownload now?")
+                                        .positiveText(R.string.yes)
+                                        .negativeText(R.string.no)
+                                        .onPositive((dialog, which) -> clickCardAppUpdate())
+                                        .show();
                             }
                         }
                     }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
@@ -177,9 +182,6 @@ public class MainFragment extends Fragment {
             // Add the request to the RequestQueue.
             queue.add(stringRequest);
         }
-
-
-
     }
 
     @Override
@@ -243,7 +245,7 @@ public class MainFragment extends Fragment {
     }
 
     @NeedsPermission({Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE})
-    public void checkForUpdates(){
+    public void checkForGameUpdates(){
         final String localVersion = getLocalGameVersion();
 
         Activity activity = getActivity();
@@ -334,23 +336,34 @@ public class MainFragment extends Fragment {
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.updatedGreen));
                     tvUpdateStatus.setText(R.string.main_you_are_up_to_date);
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_check));
+                    gameUpdateStatus = UpdateStatus.UPDATED;
                 } else {
                     cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.newVersionRed));
                     tvUpdateStatus.setText(String.format(getString(R.string.main_update_avaiable), lastVersion));
                     imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_download));
-                    gameUpdateAvaiable = true;
+                    gameUpdateStatus = UpdateStatus.UPDATE_AVAIABLE;
                 }
             }
         }
     }
 
     @OnClick(R.id.card_main_updateStatus)
-    public void clickCardUpdate(){
-        if (gameUpdateAvaiable){
+    public void clickCardGameUpdate(){
+        if (gameUpdateStatus == UpdateStatus.UPDATE_AVAIABLE){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.RVGL_ANDROID_APK_LINK));
             startActivity(browserIntent);
         } else {
-            checkForUpdates();
+            checkForGameUpdates();
+        }
+    }
+
+    @OnClick(R.id.card_main_appUpdateVersions)
+    public void clickCardAppUpdate(){
+        if (appUpdateStatus == UpdateStatus.UPDATE_AVAIABLE){
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.APP_RELEASES_LINK));
+            startActivity(browserIntent);
+        } else {
+            checkForGameUpdates();
         }
     }
 

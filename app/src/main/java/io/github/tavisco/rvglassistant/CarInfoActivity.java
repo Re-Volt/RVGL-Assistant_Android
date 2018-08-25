@@ -52,7 +52,7 @@ public class CarInfoActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.cool);
+        setContentView(R.layout.item_details);
 
         // Title container
         mTitleContainer = findViewById(R.id.activity_detail_title_container);
