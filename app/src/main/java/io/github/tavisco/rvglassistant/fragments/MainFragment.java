@@ -86,8 +86,8 @@ public class MainFragment extends Fragment {
 
 
     // =-=-=-= Items/Variables =-=-=-=
-    UpdateStatus gameUpdateStatus = UpdateStatus.ERROR;
-    UpdateStatus appUpdateStatus = UpdateStatus.ERROR;
+    UpdateStatus gameUpdateStatus = UpdateStatus.UNKNOWN;
+    UpdateStatus appUpdateStatus = UpdateStatus.UNKNOWN;
 
 
     public MainFragment() {
@@ -138,6 +138,10 @@ public class MainFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        getOnlineData();
+    }
+
+    private void getOnlineData(){
         // checkForGameUpdates();
         MainFragmentPermissionsDispatcher.checkForGameUpdatesWithPermissionCheck(this);
         // createPackagesList();
@@ -163,6 +167,12 @@ public class MainFragment extends Fragment {
                             String appLastVersion = response.substring(0, 8);
                             tvAppLastVersion.setText(String.format(getString(R.string.main_app_last_version), appLastVersion));
 
+                            if (BuildConfig.DEBUG) {
+                                appUpdateStatus = UpdateStatus.UNKNOWN;
+                                cardAppUpdateVersions.setCardBackgroundColor(ctx.getResources().getColor(R.color.primary_dark));
+                                return;
+                            }
+
                             if (appLastVersion.equals(BuildConfig.VERSION_NAME)){
                                 appUpdateStatus = UpdateStatus.UPDATED;
                             } else {
@@ -177,7 +187,13 @@ public class MainFragment extends Fragment {
                                         .show();
                             }
                         }
-                    }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
+                    },
+                    error -> {
+                        tvAppLastVersion.setText(String.format(getString(R.string.main_app_last_version), getString(R.string.main_error_getting_last_version)));
+                        appUpdateStatus = UpdateStatus.ERROR;
+                        Log.d(Constants.TAG, error.getLocalizedMessage());
+                    }
+                );
 
             // Add the request to the RequestQueue.
             stringRequest.setShouldCache(false);
@@ -250,6 +266,13 @@ public class MainFragment extends Fragment {
     public void checkForGameUpdates(){
         final String localVersion = getLocalGameVersion();
 
+        if (localVersion.equals("-1")) {
+            tvUpdateStatus.setText(R.string.main_is_game_installed);
+            tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), "---"));
+        } else {
+            tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), localVersion));
+        }
+
         Activity activity = getActivity();
         if(activity != null){
             cardUpdate.setCardBackgroundColor(getResources().getColor(R.color.cardview_dark_background));
@@ -268,7 +291,13 @@ public class MainFragment extends Fragment {
                         response -> {
                             // Need to substring the version to not get garbage
                             compareWithLocalVersion(localVersion, response.substring(0, 7));
-                        }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
+                        }, error -> {
+                            tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), getString(R.string.main_error_getting_last_version)));
+                            tvUpdateStatus.setText(getString(R.string.main_connection_error));
+                            imgUpdateStatus.setImageDrawable(getResources().getDrawable(R.drawable.ic_cloud_alert));
+                            gameUpdateStatus = UpdateStatus.ERROR;
+                        }
+                );
 
                 // Add the request to the RequestQueue.
                 stringRequest.setShouldCache(false);
@@ -321,15 +350,9 @@ public class MainFragment extends Fragment {
     public void compareWithLocalVersion(String localVersion, String lastVersion){
         Activity activity = getActivity();
         if (activity != null){
-            if (localVersion.equals("-1")) {
-                tvUpdateStatus.setText(R.string.main_is_game_installed);
-                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), "---"));
-            } else {
-                tvInstalledVersion.setText(String.format(getString(R.string.main_installed_version), localVersion));
-            }
-
             if (lastVersion.equals("-1")){
                 tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), getString(R.string.main_error_getting_last_version)));
+                gameUpdateStatus = UpdateStatus.ERROR;
             } else {
                 tvLastVersion.setText(String.format(getString(R.string.main_game_last_version), lastVersion));
             }
@@ -356,7 +379,7 @@ public class MainFragment extends Fragment {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.RVGL_ANDROID_APK_LINK));
             startActivity(browserIntent);
         } else {
-            checkForGameUpdates();
+            getOnlineData();
         }
     }
 
@@ -366,7 +389,7 @@ public class MainFragment extends Fragment {
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(Constants.APP_RELEASES_LINK));
             startActivity(browserIntent);
         } else {
-            checkForGameUpdates();
+            getOnlineData();
         }
     }
 

@@ -21,7 +21,8 @@
     <string name="main_game_last_version">I/O:\n  %1$s</string>
     <string name="main_app_last_version">Github:\n  %s</string>
     <string name="main_checking">Checking…</string>
-    <string name="main_error_getting_last_version">Oops! Error!</string>
+    <string name="main_error_getting_last_version">Error ☹</string>
+    <string name="main_connection_error">Are you online? Click here to try again</string>
     <string name="main_you_are_up_to_date">You are up to date!</string>
     <string name="main_update_avaiable">Version %s is avaiable to download! Click here for more info.</string>
     <string name="main_is_game_installed">Is the game installed?</string>
