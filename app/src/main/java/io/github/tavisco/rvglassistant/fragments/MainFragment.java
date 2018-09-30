@@ -170,6 +170,8 @@ public class MainFragment extends Fragment {
                             if (BuildConfig.DEBUG) {
                                 appUpdateStatus = UpdateStatus.UNKNOWN;
                                 cardAppUpdateVersions.setCardBackgroundColor(ctx.getResources().getColor(R.color.primary_dark));
+                                tvAppInstalledVersion.setText(String.format("DEBUG V:\n %s",
+                                        BuildConfig.VERSION_NAME));
                                 return;
                             }
 
