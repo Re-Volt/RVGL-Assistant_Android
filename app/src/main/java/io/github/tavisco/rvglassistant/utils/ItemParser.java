@@ -4,18 +4,15 @@ import android.util.Log;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
-import io.github.tavisco.rvglassistant.others.Constants;
-import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.objects.LevelItem;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
+import io.github.tavisco.rvglassistant.others.Constants;
 
 /**
  * Created by Tavisco on 29/04/18.
@@ -56,31 +53,24 @@ public class ItemParser {
 
         String wholeParamLine = "";
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            try {
-                try (Stream<String> lines = Files.lines(infoFile.toPath())) {
-                    wholeParamLine = lines.skip(itemType.getTypeParameterNameLine()).findFirst()
-                            .get();
+        try {
+            Scanner scanner = new Scanner(infoFile).useDelimiter("\n");
+
+            while (scanner.hasNext()) {
+                String line = scanner.next();
+                if (line.length() <= 4)
+                    continue;
+
+                String name = line.substring(0, 4).toUpperCase();
+
+                if (name.equals("NAME")) {
+                    wholeParamLine = line;
+                    break;
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
-        } else {
-            Scanner scanner = null;
-            try {
-                scanner = new Scanner(infoFile).useDelimiter("\n");
-                int counter = 0;
-                while (scanner.hasNext() && counter <=itemType.getTypeParameterNameLine()) {
-                    if (counter == itemType.getTypeParameterNameLine()){
-                        wholeParamLine = scanner.next();
-                    } else {
-                        counter++;
-                    }
-                }
-                scanner.close();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            scanner.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
         }
 
         //Now I use REGEX to extract the name of the item

@@ -165,6 +165,10 @@ public class MainFragment extends Fragment {
                     response -> {
                         if (!response.isEmpty()){
                             String appLastVersion = response.substring(0, 8);
+
+                            if (this.getContext() == null)
+                                return;
+
                             tvAppLastVersion.setText(String.format(getString(R.string.main_app_last_version), appLastVersion));
 
                             if (BuildConfig.DEBUG) {
