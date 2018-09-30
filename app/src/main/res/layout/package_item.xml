@@ -14,7 +14,7 @@
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:foreground="?selectableItemBackgroundBorderless"
+
         android:orientation="vertical">
 
         <android.support.constraint.ConstraintLayout
@@ -56,7 +56,7 @@
                 tools:text="io_clockwork" />
 
             <TextView
-                android:id="@+id/tv_package_local_version"
+                android:id="@+id/tv_package_last_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
@@ -67,22 +67,25 @@
                 android:textSize="16sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                tools:text="Local: 18.0429" />
+                tools:text="I/O: 18.0429" />
 
             <TextView
-                android:id="@+id/tv_package_last_version"
+                android:id="@+id/tv_package_local_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:layout_marginEnd="8dp"
+                android:layout_marginTop="8dp"
                 android:ellipsize="end"
                 android:lines="1"
                 android:textAlignment="viewEnd"
                 android:textSize="16sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/tv_package_local_version"
-                tools:text="I/O: 18.0429" />
+                app:layout_constraintTop_toBottomOf="@+id/tv_package_last_version"
+                tools:text="Local: 18.0429" />
+
+
         </android.support.constraint.ConstraintLayout>
     </FrameLayout>
 </android.support.v7.widget.CardView>

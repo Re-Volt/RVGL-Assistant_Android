@@ -95,17 +95,19 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tv_main_game_installedVersion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Local:\n  ---"/>
-
-                    <TextView
                         android:id="@+id/tv_main_game_lastVersion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="I/O: \n  ---"/>
+
+                    <TextView
+                        android:id="@+id/tv_main_game_installedVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Local:\n  ---"/>
+
+
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
@@ -130,17 +132,17 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/tv_main_app_installedVersion"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:text="Local:\n  ---"/>
-
-                    <TextView
                         android:id="@+id/tv_main_app_lastVersion"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
                         android:text="Github:\n  ---"/>
+
+                    <TextView
+                        android:id="@+id/tv_main_app_installedVersion"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Local:\n  ---"/>
                 </LinearLayout>
             </android.support.v7.widget.CardView>
 
