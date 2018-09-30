@@ -254,7 +254,10 @@ public class MainFragment extends Fragment {
                                 mItemAdapter.add(new IOPackageViewItem(rvioPack));
                             }
                         }
-                    }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
+                    }, error -> {
+                        //Log.e(Constants.TAG, error.getLocalizedMessage());
+
+            });
 
             // Add the request to the RequestQueue.
             stringRequest.setShouldCache(false);
