@@ -119,7 +119,7 @@ public class IOPackageViewItem extends AbstractItem<IOPackageViewItem, IOPackage
                                 item.setRemoteVersionChecked(true);
                                 bindView(viewItem,payloads);
                             }
-                        }, error -> Log.d(Constants.TAG, error.getLocalizedMessage()));
+                        }, error -> Log.d(Constants.TAG, String.format("Error while making request to %s", rvioRequest)));
 
                 // Add the request to the RequestQueue.
                 stringRequest.setShouldCache(false);
