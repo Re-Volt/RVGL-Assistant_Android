@@ -6,8 +6,8 @@ android {
         applicationId "io.github.tavisco.rvglassistant"
         minSdkVersion 21
         targetSdkVersion 28
-        versionCode 3
-        versionName "R18.0930"
+        versionCode 4
+        versionName "R19.0310"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }
