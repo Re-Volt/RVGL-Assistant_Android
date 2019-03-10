@@ -31,6 +31,7 @@ import io.github.tavisco.rvglassistant.others.CustomAnimatorListener;
 import io.github.tavisco.rvglassistant.others.CustomTransitionListener;
 import io.github.tavisco.rvglassistant.others.Others;
 import io.github.tavisco.rvglassistant.utils.Animations;
+import io.github.tavisco.rvglassistant.utils.ImageLoader;
 
 //https://github.com/AnyChart/AnyChart-Android
 public class CarInfoActivity extends AppCompatActivity {
@@ -99,21 +100,7 @@ public class CarInfoActivity extends AppCompatActivity {
         image.setMinimumWidth(600);
 
         //Load image
-        Bitmap carImg = null;
-        boolean imageSetted = false;
-        if (imgPath != null && !imgPath.isEmpty()) {
-            File imgFile = new File(imgPath);
-            if (imgFile.isFile() && imgFile.canRead()) {
-                carImg = BitmapFactory.decodeFile(imgPath);
-                imageSetted = true;
-            }
-        }
-
-        if (!imageSetted){
-            carImg = BitmapFactory.decodeResource(getResources(), R.drawable.unknown_carbox);
-        }
-
-        Glide.with(this).load(carImg).into(image);
+        Bitmap carImg = ImageLoader.loadCarImage(this.getBaseContext(), carItem, image);
 
         if (Build.VERSION.SDK_INT >= 21) {
             image.setTransitionName("cover");

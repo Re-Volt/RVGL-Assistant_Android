@@ -16,6 +16,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.CarItem;
+import io.github.tavisco.rvglassistant.others.StockCarImages;
+import io.github.tavisco.rvglassistant.utils.ImageLoader;
 
 /**
  * Created by otavio.mpinheiro on 15/03/2018.
@@ -67,16 +69,22 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
         viewHolder.imageView.setImageBitmap(null);
 
         //Load image
-        if (car.getImagePath() != null) {
-            File image = new File(car.getImagePath());
-            if (image.isFile() && image.canRead()) {
-                Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
-            } else {
-                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
-            }
-        } else {
-            Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
-        }
+//        if (car.getImagePath() != null) {
+//            File image = new File(car.getImagePath());
+//            if (image.isFile() && image.canRead()) {
+//                Glide.with(viewHolder.view.getContext()).load(car.getImagePath()).into(viewHolder.imageView);
+//            } else {
+//                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
+//            }
+//        } else {
+//            StockCarImages stockImgs = StockCarImages.getInstance();
+//            if (stockImgs.getCarsImgs().containsKey(getCar().getName())){
+//                Glide.with(viewHolder.view.getContext()).load(stockImgs.getCarsImgs().get(getCar().getName())).into(viewHolder.imageView);
+//            } else {
+//                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
+//            }
+//        }
+        ImageLoader.loadCarImage(viewHolder.view.getContext(), car, viewHolder.imageView);
     }
 
     @Override
