@@ -56,7 +56,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".CarInfoActivity"
+            android:name=".ItemDetailsActivity"
             android:label="@string/title_activity_car_info"
             android:theme="@style/AppTheme.CarInfoActivity">
         </activity>

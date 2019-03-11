@@ -22,7 +22,7 @@ import com.mikepenz.fastadapter.adapters.ItemAdapter;
 
 import java.util.Arrays;
 
-import io.github.tavisco.rvglassistant.CarInfoActivity;
+import io.github.tavisco.rvglassistant.ItemDetailsActivity;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.adapters.LevelViewItem;
 import io.github.tavisco.rvglassistant.objects.enums.ItemType;
@@ -104,7 +104,7 @@ public class LevelsFragment extends Fragment {
 
         //configure our fastAdapter
         mFastAdapter.withOnClickListener((v, adapter, item, position) -> {
-            Intent intent = new Intent(getActivity(), CarInfoActivity.class);
+            Intent intent = new Intent(getActivity(), ItemDetailsActivity.class);
             intent.putExtra("itemJson", (new Gson()).toJson(item.getLevel()));
             intent.putExtra("itemType", ItemType.LEVEL);
 

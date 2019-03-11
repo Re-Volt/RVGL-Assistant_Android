@@ -30,13 +30,12 @@ import io.github.tavisco.rvglassistant.utils.Animations;
 import io.github.tavisco.rvglassistant.utils.ImageLoader;
 
 //https://github.com/AnyChart/AnyChart-Android
-public class CarInfoActivity extends AppCompatActivity {
-    BaseItem baseItem;
-    CarItem carItem;
-    LevelItem levelItem;
-    ItemType itemType;
+public class ItemDetailsActivity extends AppCompatActivity {
+    private BaseItem baseItem;
+    private CarItem carItem;
+    private LevelItem levelItem;
+    private ItemType itemType;
 
-    private String imgPath = "";
 
     private static final int ANIMATION_DURATION_SHORT = 150;
     private static final int ANIMATION_DURATION_MEDIUM = 300;
@@ -63,33 +62,17 @@ public class CarInfoActivity extends AppCompatActivity {
         //override text
         setTitle("");
 
-        // Fab button
-        mFabButton = findViewById(R.id.activity_detail_fab);
-        mFabButton.setScaleX(0);
-        mFabButton.setScaleY(0);
-        mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_chart_bar));
-        mFabButton.setOnClickListener(onFabButtonListener);
+        setupFabs();
 
-        // Fab share button
-        mFabShareButton = findViewById(R.id.activity_detail_fab_share);
-        mFabShareButton.setScaleX(0);
-        mFabShareButton.setScaleY(0);
-        mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_share_variant));
-        mFabShareButton.setOnClickListener(onFabShareButtonListener);
+        loadDataFromIntent();
 
-        Intent intent = getIntent();
-        String jsonItem = intent.getStringExtra("itemJson");
-        itemType = (ItemType) intent.getSerializableExtra("itemType");
-        if (itemType == ItemType.LEVEL){
-            levelItem = new Gson().fromJson(jsonItem, LevelItem.class);
-            imgPath = levelItem.getImagePath();
-            baseItem = levelItem;
-        } else if (itemType == ItemType.CAR){
-            carItem = new Gson().fromJson(jsonItem, CarItem.class);
-            imgPath = carItem.getImagePath();
-            baseItem = carItem;
-        }
+        LoadItemImage();
 
+        findViewById(R.id.container).setOnClickListener(v -> onBackPressed());
+
+    }
+
+    private void LoadItemImage() {
         //get the imageHeader and set the coverImage
         final ImageView image = findViewById(R.id.activity_detail_image);
 
@@ -134,9 +117,35 @@ public class CarInfoActivity extends AppCompatActivity {
                 setColors(s.getTitleTextColor(), s.getRgb());
             }
         }
+    }
 
-        findViewById(R.id.container).setOnClickListener(v -> onBackPressed());
+    private void loadDataFromIntent() {
+        Intent intent = getIntent();
+        String jsonItem = intent.getStringExtra("itemJson");
+        itemType = (ItemType) intent.getSerializableExtra("itemType");
+        if (itemType == ItemType.LEVEL){
+            levelItem = new Gson().fromJson(jsonItem, LevelItem.class);
+            baseItem = levelItem;
+        } else if (itemType == ItemType.CAR){
+            carItem = new Gson().fromJson(jsonItem, CarItem.class);
+            baseItem = carItem;
+        }
+    }
 
+    private void setupFabs() {
+        // Fab button
+        mFabButton = findViewById(R.id.activity_detail_fab);
+        mFabButton.setScaleX(0);
+        mFabButton.setScaleY(0);
+        mFabButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_chart_bar));
+        mFabButton.setOnClickListener(onFabButtonListener);
+
+        // Fab share button
+        mFabShareButton = findViewById(R.id.activity_detail_fab_share);
+        mFabShareButton.setScaleX(0);
+        mFabShareButton.setScaleY(0);
+        mFabShareButton.setImageDrawable(getResources().getDrawable(R.drawable.ic_share_variant));
+        mFabShareButton.setOnClickListener(onFabShareButtonListener);
     }
 
     /**
@@ -150,7 +159,7 @@ public class CarInfoActivity extends AppCompatActivity {
             public void onAnimationEnd(Animator animation) {
 
                 super.onAnimationEnd(animation);
-                mTitlesContainer.startAnimation(AnimationUtils.loadAnimation(CarInfoActivity.this, R.anim.alpha_on));
+                mTitlesContainer.startAnimation(AnimationUtils.loadAnimation(ItemDetailsActivity.this, R.anim.alpha_on));
                 mTitlesContainer.setVisibility(View.VISIBLE);
 
                 //animate the fab
@@ -161,7 +170,7 @@ public class CarInfoActivity extends AppCompatActivity {
                         .setDuration(ANIMATION_DURATION_SHORT * 2)
                         .start();
                 mFabShareButton.animate()
-                        .translationX((-1) * Others.pxFromDp(CarInfoActivity.this, 58))
+                        .translationX((-1) * Others.pxFromDp(ItemDetailsActivity.this, 58))
                         .setStartDelay(ANIMATION_DURATION_SHORT)
                         .setDuration(ANIMATION_DURATION_SHORT)
                         .start();
