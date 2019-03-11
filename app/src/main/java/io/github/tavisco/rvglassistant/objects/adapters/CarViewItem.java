@@ -6,17 +6,14 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.mikepenz.fastadapter.items.AbstractItem;
 
-import java.io.File;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.github.tavisco.rvglassistant.R;
 import io.github.tavisco.rvglassistant.objects.CarItem;
-import io.github.tavisco.rvglassistant.others.StockCarImages;
 import io.github.tavisco.rvglassistant.utils.ImageLoader;
 
 /**
@@ -84,7 +81,7 @@ public class CarViewItem extends AbstractItem<CarViewItem, CarViewItem.ViewHolde
 //                Glide.with(viewHolder.view.getContext()).load(R.drawable.unknown_carbox).into(viewHolder.imageView);
 //            }
 //        }
-        ImageLoader.loadCarImage(viewHolder.view.getContext(), car, viewHolder.imageView);
+        ImageLoader.loadItemImage(viewHolder.view.getContext(), car, viewHolder.imageView);
     }
 
     @Override

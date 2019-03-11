@@ -10,23 +10,26 @@ import com.bumptech.glide.Glide;
 import java.io.File;
 
 import io.github.tavisco.rvglassistant.R;
-import io.github.tavisco.rvglassistant.objects.CarItem;
+import io.github.tavisco.rvglassistant.objects.BaseItem;
+import io.github.tavisco.rvglassistant.objects.enums.ItemType;
 import io.github.tavisco.rvglassistant.others.StockCarImages;
 
 public class ImageLoader {
 
-    public static Bitmap loadCarImage(Context ctx, CarItem car, ImageView imageView) {
-        if (car.getImagePath() != null) {
-            File image = new File(car.getImagePath());
+    public static Bitmap loadItemImage(Context ctx, BaseItem baseItem, ImageView imageView) {
+        if (baseItem.getImagePath() != null) {
+            File image = new File(baseItem.getImagePath());
             if (image.isFile() && image.canRead()) {
-                Glide.with(ctx).load(car.getImagePath()).into(imageView);
-                return BitmapFactory.decodeFile(car.getImagePath());
+                Glide.with(ctx).load(baseItem.getImagePath()).into(imageView);
+                return BitmapFactory.decodeFile(baseItem.getImagePath());
             }
         } else {
-            StockCarImages stockImgs = StockCarImages.getInstance();
-            if (stockImgs.getCarsImgs().containsKey(car.getName())){
-                Glide.with(ctx).load(stockImgs.getCarsImgs().get(car.getName())).into(imageView);
-                return BitmapFactory.decodeResource(ctx.getResources(), stockImgs.getCarsImgs().get(car.getName()));
+            if (baseItem.getType() == ItemType.CAR){
+                StockCarImages stockImgs = StockCarImages.getInstance();
+                if (stockImgs.getCarsImgs().containsKey(baseItem.getName())){
+                    Glide.with(ctx).load(stockImgs.getCarsImgs().get(baseItem.getName())).into(imageView);
+                    return BitmapFactory.decodeResource(ctx.getResources(), stockImgs.getCarsImgs().get(baseItem.getName()));
+                }
             }
         }
 

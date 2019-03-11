@@ -3,7 +3,6 @@ package io.github.tavisco.rvglassistant;
 import android.animation.Animator;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -17,10 +16,7 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
-
-import java.io.File;
 
 import io.github.tavisco.rvglassistant.objects.BaseItem;
 import io.github.tavisco.rvglassistant.objects.CarItem;
@@ -100,7 +96,7 @@ public class CarInfoActivity extends AppCompatActivity {
         image.setMinimumWidth(600);
 
         //Load image
-        Bitmap carImg = ImageLoader.loadCarImage(this.getBaseContext(), carItem, image);
+        Bitmap carImg = ImageLoader.loadItemImage(this.getBaseContext(), baseItem, image);
 
         if (Build.VERSION.SDK_INT >= 21) {
             image.setTransitionName("cover");
